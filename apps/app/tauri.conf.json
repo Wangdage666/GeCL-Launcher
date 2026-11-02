@@ -1,0 +1,130 @@
+{
+	"$schema": "https://schema.tauri.app/config/2",
+	"build": {
+		"beforeDevCommand": "pnpm -w i18n:coverage && pnpm --filter @modrinth/app-frontend run dev",
+		"beforeBuildCommand": "pnpm -w i18n:coverage && pnpm --filter @modrinth/app-frontend run build",
+		"frontendDist": "../app-frontend/dist",
+		"devUrl": "http://localhost:1420"
+	},
+	"bundle": {
+		"active": true,
+		"category": "Game",
+		"copyright": "",
+		"targets": [
+			"nsis"
+		],
+		"externalBin": [
+			"../../target/agent-tools/gecl-agent"
+		],
+		"icon": [
+			"icons/128x128.png",
+			"icons/128x128@2x.png",
+			"icons/icon.ico"
+		],
+		"windows": {
+			"nsis": {
+				"installerIcon": "icons/icon.ico",
+				"installMode": "perMachine",
+				"template": "./nsis/installer.nsi",
+				"installerHooks": "./nsis/hooks.nsi",
+				"languages": [
+					"SimpChinese"
+				],
+				"displayLanguageSelector": false
+			}
+		},
+		"longDescription": "",
+		"macOS": {
+			"entitlements": "App.entitlements",
+			"exceptionDomain": "",
+			"frameworks": [],
+			"providerShortName": null,
+			"signingIdentity": null
+		},
+		"shortDescription": "",
+		"linux": {
+			"deb": {
+				"depends": []
+			}
+		},
+		"fileAssociations": [
+			{
+				"ext": [
+					"mrpack"
+				],
+				"mimeType": "application/x-modrinth-modpack+zip"
+			}
+		],
+		"resources": {
+			"../../docs/AGENT_COMMANDS.md": "AGENT_COMMANDS.md",
+			"../../docs/AGENT_COMMANDS.json": "AGENT_COMMANDS.json",
+			"../../docs/AGENT_TYPES.json": "AGENT_TYPES.json",
+			"../../docs/AGENT_API_SCHEMA.json": "AGENT_API_SCHEMA.json"
+		}
+	},
+	"productName": "gecl",
+	"version": "../app-frontend/package.json",
+	"mainBinaryName": "gecl",
+	"identifier": "top.wangdage.gecl.modrinth",
+	"plugins": {
+		"deep-link": {
+			"desktop": {
+				"schemes": [
+					"gecl"
+				]
+			},
+			"mobile": []
+		}
+	},
+	"app": {
+		"withGlobalTauri": false,
+		"macOSPrivateApi": true,
+		"windows": [
+			{
+				"titleBarStyle": "Overlay",
+				"hiddenTitle": true,
+				"fullscreen": false,
+				"height": 800,
+				"resizable": true,
+				"title": "gecl",
+				"label": "main",
+				"width": 1280,
+				"minHeight": 700,
+				"minWidth": 1100,
+				"visible": false,
+				"zoomHotkeysEnabled": false,
+				"decorations": false
+			}
+		],
+		"security": {
+			"assetProtocol": {
+				"scope": [
+					"$APPDATA/caches/icons/*",
+					"$APPCONFIG/caches/icons/*",
+					"$CONFIG/caches/icons/*",
+					"$APPDATA/profiles/*/saves/*/icon.png",
+					"$APPCONFIG/profiles/*/saves/*/icon.png",
+					"$CONFIG/profiles/*/saves/*/icon.png"
+				],
+				"enable": true
+			},
+			"capabilities": [
+				"core",
+				"plugins"
+			],
+			"csp": {
+				"default-src": "'self' customprotocol: asset:",
+				"connect-src": "ipc: http://ipc.localhost https://modrinth.com https://*.modrinth.com https://api.mclo.gs http://textures.minecraft.net https://textures.minecraft.net https://fill.papermc.io https://api.purpurmc.org 'self' data: blob:",
+				"font-src": [
+					"'self'",
+					"https://cdn.modrinth.com/fonts/"
+				],
+				"img-src": "https: 'unsafe-inline' 'self' asset: http://asset.localhost http://textures.minecraft.net blob: data:",
+				"style-src": "'unsafe-inline' 'self'",
+				"script-src": "'self'",
+				"frame-src": "https://www.youtube.com https://www.youtube-nocookie.com 'self'",
+				"media-src": "https://*.githubusercontent.com"
+			}
+		}
+	}
+}
