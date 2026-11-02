@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GeCL Agent command transport",
+  "description": "GeCL CLI 操作的概念 JSON 模型，供模型或工具适配使用；不是本机文件队列的底层传输信封。统一正式版默认开放本机操作接口，先启动 gecl.exe，再通过安装目录 gecl-agent.exe 调用。",
+  "oneOf": [
+    {
+      "type": "object",
+      "properties": {
+        "action": {
+          "const": "invoke"
+        },
+        "command": {
+          "type": "string",
+          "description": "AGENT_COMMANDS.json 中列出的完整接口名，例如 plugin:auth|get_users。"
+        },
+        "args": {
+          "type": "object",
+          "description": "与所选接口的 inputSchema 对应的顶层参数对象；顶层 camelCase，嵌套对象按其自己的序列化格式。$channel 只能用于顶层进度通道参数。"
+        }
+      },
+      "required": [
+        "action",
+        "command",
+        "args"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "action": {
+          "enum": [
+            "commands",
+            "status",
+            "ui.snapshot"
+          ]
+        }
+      },
+      "required": [
+        "action"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "action": {
+          "enum": [
+            "ui.navigate",
+            "ui.click"
+          ]
+        },
+        "value": {
+          "type": "string",
+          "description": "ui.navigate 使用已存在的页面路由；ui.click 使用 CSS 选择器，仅点击第一项。"
+        }
+      },
+      "required": [
+        "action",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "action": {
+          "const": "ui.fill"
+        },
+        "selector": {
+          "type": "string",
+          "description": "目标 input 或 textarea 的 CSS 选择器。"
+        },
+        "value": {
+          "type": "string",
+          "description": "要填入的文字，不会自动提交保存。"
+        }
+      },
+      "required": [
+        "action",
+        "selector",
+        "value"
+      ],
+      "additionalProperties": false
+    }
+  ],
+  "$defs": {
+    "response": {
+      "type": "object",
+      "properties": {
+        "ok": {
+          "type": "boolean"
+        },
+        "result": {
+          "description": "具体接口或页面操作的返回值；无返回值时为 null。"
+        },
+        "events": {
+          "type": "array",
+          "items": {},
+          "description": "调用结束时收集的最多 1000 条进度事件；当前 CLI 不逐行流式输出。"
+        },
+        "error": {
+          "description": "失败信息，可能是文字或结构化对象。"
+        }
+      },
+      "required": [
+        "ok"
+      ]
+    }
+  }
+}
