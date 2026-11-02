@@ -1,0 +1,1482 @@
+{
+  "agent_mode": {
+    "title": "检查本机命令接口是否启用",
+    "description": "返回本次构建是否启用本机命令接口。统一正式版默认返回 true；agent_mode 名称为兼容旧调用保留，不代表软件处于 Rust 调试编译模式。",
+    "effect": "read"
+  },
+  "are_updates_enabled": {
+    "title": "检查自动更新是否启用",
+    "description": "检查当前构建和环境是否允许应用自身的更新机制；不是检查 Minecraft 更新。",
+    "effect": "read"
+  },
+  "enqueue_update_for_installation": {
+    "title": "预约安装启动器更新",
+    "description": "用于上游自动更新流程。本次交付未启用 updater，调用会返回更新已禁用的错误，不会安装东西。",
+    "effect": "disabled"
+  },
+  "get_update_size": {
+    "title": "读取待更新程序大小",
+    "description": "用于上游自动更新流程。本次交付未启用 updater，因此不返回大小而返回禁用错误。",
+    "effect": "disabled"
+  },
+  "initialize_state": {
+    "title": "初始化后端状态与事件通道",
+    "description": "只供界面启动时建立数据库、目录和事件连接；应用已初始化后不要重复调用。不是首次设置目录的入口。",
+    "effect": "internal"
+  },
+  "is_dev": {
+    "title": "检查开发编译标志",
+    "description": "返回是否使用 Rust debug_assertions 编译；Agent 版也是优化的 release 构建，不能用此值判断 Agent 接口是否开放。",
+    "effect": "read"
+  },
+  "remove_enqueued_update": {
+    "title": "取消已预约的启动器更新",
+    "description": "当前禁用更新的构建中为空操作；不取消任何游戏、模组下载任务。",
+    "effect": "disabled"
+  },
+  "restart_app": {
+    "title": "重新启动启动器",
+    "description": "重启 GeCL 应用进程，不等于重启 Minecraft。重启会中断当前命令通道，可能拿不到本次回复。",
+    "effect": "ui"
+  },
+  "set_restart_after_pending_update": {
+    "title": "设置更新后的重启标记",
+    "description": "只设置应用待更新流程的重启选项，不会立即重启；当前交付未开启自动更新。",
+    "effect": "internal"
+  },
+  "show_window": {
+    "title": "显示启动器主窗口",
+    "description": "让隐藏的 GeCL 主窗口显示并取得焦点；不启动游戏。",
+    "effect": "ui"
+  },
+  "toggle_decorations": {
+    "title": "切换系统窗口边框",
+    "description": "调整当前 GeCL 窗口是否使用系统标题栏/边框；参数 b 为开关，不修改 Minecraft 窗口。",
+    "effect": "ui"
+  },
+  "plugin:auth|add_offline_user": {
+    "title": "添加离线游玩账户",
+    "description": "校验 3–16 位英文字母、数字或下划线的用户名并创建离线身份；返回账户对象，其名称在 profile.name、UUID 在 profile.id。",
+    "effect": "write"
+  },
+  "plugin:auth|begin_device_login": {
+    "title": "开始微软正版登录",
+    "description": "创建微软设备代码登录会话；根据返回的验证网址和代码在浏览器授权，之后用 poll_device_login 查询。不会替用户自动完成网页登录。",
+    "effect": "network_write"
+  },
+  "plugin:auth|cancel_device_login": {
+    "title": "取消微软登录会话",
+    "description": "取消 id 对应的设备登录流程，不会删除已经保存的账户。",
+    "effect": "write"
+  },
+  "plugin:auth|check_reachable": {
+    "title": "检查微软/Mojang 验证服务连接",
+    "description": "请求验证服务以检查连通性；成功返回空结果，失败返回网络错误，不会添加账户。",
+    "effect": "network_read"
+  },
+  "plugin:auth|get_default_user": {
+    "title": "查询当前选中的游玩账户",
+    "description": "返回当前默认账户的 UUID；没有选中账户时为 null，不返回完整账户资料。",
+    "effect": "read"
+  },
+  "plugin:auth|get_users": {
+    "title": "列出本机游玩账户",
+    "description": "返回微软与离线账户的公开资料列表；使用 profile.id 作为后续选择或删除的 user 参数。",
+    "effect": "read"
+  },
+  "plugin:auth|poll_device_login": {
+    "title": "查询微软登录进度",
+    "description": "使用 begin_device_login 返回的会话 id 检查授权状态；授权成功时按正常拥有权校验流程保存账户。",
+    "effect": "network_write"
+  },
+  "plugin:auth|remove_user": {
+    "title": "移除本机游玩账户",
+    "description": "移除 user 指定的本地账户记录；不删除微软账号本身，也不删除游戏或世界。",
+    "effect": "delete"
+  },
+  "plugin:auth|set_default_user": {
+    "title": "切换游玩账户",
+    "description": "将已有 user UUID 设为默认游玩账户；不是添加新账户，也不会改变已运行游戏的身份。",
+    "effect": "write"
+  },
+  "plugin:cache|get_project": {
+    "title": "查询一个 Modrinth 项目",
+    "description": "按项目 ID 或该查询支持的别名读取项目资料，可命中本地缓存，必要时访问 Modrinth。",
+    "effect": "network_read"
+  },
+  "plugin:cache|get_project_many": {
+    "title": "批量查询 Modrinth 项目",
+    "description": "按 ids 一次读取多个项目资料，减少逐个查询；返回找到的项目列表。",
+    "effect": "network_read"
+  },
+  "plugin:cache|get_project_v3": {
+    "title": "查询一个 Modrinth v3 项目",
+    "description": "读取 v3 格式的项目对象；字段结构与 get_project 的旧项目格式不同。",
+    "effect": "network_read"
+  },
+  "plugin:cache|get_project_v3_many": {
+    "title": "批量查询 Modrinth v3 项目",
+    "description": "按 ids 读取多个 v3 项目对象；不要把结果字段当作旧版 v2 项目字段使用。",
+    "effect": "network_read"
+  },
+  "plugin:cache|get_project_versions": {
+    "title": "查询项目的版本清单",
+    "description": "按 projectId 读取该项目发布的文件版本列表；这是项目版本，不是 Minecraft 版本列表。",
+    "effect": "network_read"
+  },
+  "plugin:cache|get_search_results": {
+    "title": "搜索 Modrinth 内容",
+    "description": "id 是搜索查询串，不是项目 ID，例如 ?query=AppleSkin&limit=20；返回搜索结果对象。",
+    "effect": "network_read"
+  },
+  "plugin:cache|get_search_results_many": {
+    "title": "批量执行 Modrinth 搜索",
+    "description": "ids 是多个搜索查询串，一次返回多组查询结果；不是把多个关键词直接拼成项目 ID。",
+    "effect": "network_read"
+  },
+  "plugin:cache|get_search_results_v3": {
+    "title": "使用 v3 搜索 Modrinth 内容",
+    "description": "按搜索查询串取得 v3 结果，字段和筛选规则与旧搜索接口可能不同。",
+    "effect": "network_read"
+  },
+  "plugin:cache|get_search_results_v3_many": {
+    "title": "批量执行 v3 搜索",
+    "description": "ids 为多个 v3 搜索查询串，返回多组 v3 搜索结果。",
+    "effect": "network_read"
+  },
+  "plugin:cache|get_team": {
+    "title": "查询项目维护团队",
+    "description": "id 为团队 ID，返回团队成员及角色资料，不是本机 Minecraft 账户。",
+    "effect": "network_read"
+  },
+  "plugin:cache|get_team_many": {
+    "title": "批量查询项目团队",
+    "description": "ids 为团队 ID 数组；每项结果本身是一个团队成员列表。",
+    "effect": "network_read"
+  },
+  "plugin:cache|get_organization": {
+    "title": "查询 Modrinth 组织",
+    "description": "按组织 ID 或该接口支持的别名取得组织资料。",
+    "effect": "network_read"
+  },
+  "plugin:cache|get_organization_many": {
+    "title": "批量查询 Modrinth 组织",
+    "description": "按 ids 取得多个组织资料，不修改组织或成员。",
+    "effect": "network_read"
+  },
+  "plugin:cache|get_user": {
+    "title": "查询 Modrinth 用户公开资料",
+    "description": "这里的 user 是 Modrinth 网站用户；本机微软/离线账户应使用 plugin:auth。",
+    "effect": "network_read"
+  },
+  "plugin:cache|get_user_many": {
+    "title": "批量查询 Modrinth 用户",
+    "description": "按 ids 查询网站用户公开资料；不列出本机保存的游玩账户。",
+    "effect": "network_read"
+  },
+  "plugin:cache|get_version": {
+    "title": "查询一个 Modrinth 文件版本",
+    "description": "id 是 Modrinth version ID，返回版本号、下载文件、依赖和兼容信息；不是 Minecraft 版本字符串。",
+    "effect": "network_read"
+  },
+  "plugin:cache|get_version_many": {
+    "title": "批量查询 Modrinth 文件版本",
+    "description": "按 ids 查询多个文件版本；可用于组装整合包依赖清单。",
+    "effect": "network_read"
+  },
+  "plugin:cache|purge_cache_types": {
+    "title": "清除指定种类的元数据缓存",
+    "description": "按 cacheTypes 清除本地 API 元数据缓存，后续读取可能需要联网；不会清除游戏存档。",
+    "effect": "delete"
+  },
+  "plugin:files|file_create_directory": {
+    "title": "在游戏目录内创建文件夹",
+    "description": "path 是指定游戏目录下的相对路径；会通过现有路径边界检查。",
+    "effect": "write"
+  },
+  "plugin:files|file_delete": {
+    "title": "删除游戏目录内的文件或文件夹",
+    "description": "recursive=true 才允许递归删除目录；这是实际删除操作，可能包含用户文件，不是移到回收站的承诺。",
+    "effect": "delete"
+  },
+  "plugin:files|file_extract_zip": {
+    "title": "在游戏目录内解压 ZIP",
+    "description": "filePath 指向游戏内 ZIP，解压到 ZIP 所在文件夹。dryRun=true 只列冲突；overrideConflicts 决定是否覆盖已有文件。",
+    "effect": "write"
+  },
+  "plugin:files|file_list": {
+    "title": "列出游戏目录内容",
+    "description": "path 为游戏内相对目录，空字符串表示游戏根目录；返回文件与子目录条目。",
+    "effect": "read"
+  },
+  "plugin:files|file_read": {
+    "title": "读取游戏内文件字节",
+    "description": "返回字节数组，不自动按 UTF-8 转文本；适合配置读取或二进制文件检查。",
+    "effect": "read"
+  },
+  "plugin:files|file_read_dragged_file": {
+    "title": "读取指定本地文件字节",
+    "description": "读取一个绝对路径的普通文件并返回字节数组；文件会整体进入内存，不适合把大整合包当普通小文件读取。",
+    "effect": "read"
+  },
+  "plugin:files|file_rename": {
+    "title": "移动或重命名游戏内文件",
+    "description": "source、destination 都是同一游戏目录下的相对路径；不用于任意磁盘路径搬迁。",
+    "effect": "write"
+  },
+  "plugin:files|file_save_as": {
+    "title": "把游戏内文件另存到外部",
+    "description": "弹出原生保存位置对话框，将 filePath 指定的游戏文件复制出去；需要有人选择目的位置。",
+    "effect": "dialog"
+  },
+  "plugin:files|file_write": {
+    "title": "写入游戏内文件",
+    "description": "bytes 是 0–255 的字节数组。createOnly=true 表示只能新建；false 允许按后台规则覆盖已有内容。",
+    "effect": "write"
+  },
+  "plugin:files|files_select_external": {
+    "title": "选择外部下载的保存位置",
+    "description": "弹出保存对话框并返回 saveId 会话标识；取消时返回 null。此时尚未开始下载。",
+    "effect": "dialog"
+  },
+  "plugin:files|files_save_external": {
+    "title": "下载到已选外部文件",
+    "description": "使用 files_select_external 的 saveId，将 request.url 下载到所选位置，支持进度通道；不是安装到某个游戏版本。",
+    "effect": "write"
+  },
+  "plugin:files|files_release_external": {
+    "title": "释放或取消外部保存会话",
+    "description": "结束 saveId 对应的外部保存会话，并向运行中的下载发出取消信号；不删除已经完成的用户文件。",
+    "effect": "write"
+  },
+  "plugin:friends|add_friend": {
+    "title": "添加上游平台好友",
+    "description": "向 Modrinth 社交服务发起好友操作，不是 Minecraft 服务器白名单；需要平台身份，当前无平台登录入口，通常无法使用。",
+    "effect": "upstream_write"
+  },
+  "plugin:friends|friend_statuses": {
+    "title": "查询平台好友状态",
+    "description": "读取上游好友的在线/游玩状态；依赖上游身份与服务，不是本机游戏进程检测。",
+    "effect": "upstream_read"
+  },
+  "plugin:friends|friends": {
+    "title": "列出上游平台好友",
+    "description": "返回 Modrinth 平台好友关系；不能用它查询微软 Xbox 好友。",
+    "effect": "upstream_read"
+  },
+  "plugin:friends|remove_friend": {
+    "title": "移除上游平台好友",
+    "description": "修改平台好友关系；当前 GeCL 不提供平台登录，不能把它视为可直接使用的本机功能。",
+    "effect": "upstream_write"
+  },
+  "plugin:gecl|appearance_discard_background": {
+    "title": "清理未使用的背景副本",
+    "description": "删除应用缓存的背景图片副本；后台会保留仍被当前外观设置引用的图片，不删除原照片。",
+    "effect": "delete"
+  },
+  "plugin:gecl|appearance_get": {
+    "title": "读取主题色与背景设置",
+    "description": "返回 preferences，以及已保存背景副本的 id/path；不打开设置窗口。",
+    "effect": "read"
+  },
+  "plugin:gecl|appearance_import_background": {
+    "title": "导入背景照片",
+    "description": "读取 source 图片，规范化并保存应用副本，返回 id/path；原图不变，之后用 appearance_set 启用。",
+    "effect": "write"
+  },
+  "plugin:gecl|appearance_set": {
+    "title": "保存外观配置",
+    "description": "保存主题色、背景开关和效果参数；可同时传 window 保存明暗模式、阴影和系统标题栏选项。",
+    "effect": "write"
+  },
+  "plugin:gecl|cache_artwork": {
+    "title": "缓存一张自定义图标",
+    "description": "将 source 图片校验并规范化为应用 PNG 缓存，返回缓存路径；不会自动替换某个游戏图标。",
+    "effect": "write"
+  },
+  "plugin:gecl|cancel_import": {
+    "title": "取消本地游戏文件夹导入",
+    "description": "按 import_folder 的 jobId 发出取消信号；要使用与导入时相同的编号。",
+    "effect": "write"
+  },
+  "plugin:gecl|cancel_world_backup": {
+    "title": "取消存档备份或恢复任务",
+    "description": "按 world_backup 的 jobId 取消准备/复制过程；最终目录提交阶段不做半途取消。",
+    "effect": "write"
+  },
+  "plugin:gecl|choose_directory": {
+    "title": "设置首次游戏数据目录",
+    "description": "设置或迁移应用的游戏数据目录，可能涉及文件操作；这不是仅改变下载对话框的默认文件夹。",
+    "effect": "write"
+  },
+  "plugin:gecl|curseforge_cancel": {
+    "title": "取消 CurseForge 安装任务",
+    "description": "按 curseforge_install 的 UUID jobId 请求取消；不会取消 Modrinth 的安装任务。",
+    "effect": "write"
+  },
+  "plugin:gecl|curseforge_changelog": {
+    "title": "读取 CF 文件更新日志",
+    "description": "id 为 CF 项目数字 ID，fileId 为该项目的文件数字 ID；返回更新日志文本。",
+    "effect": "network_read"
+  },
+  "plugin:gecl|curseforge_description": {
+    "title": "读取 CF 项目介绍",
+    "description": "按 CF 项目数字 ID 获取原作者完整 HTML 介绍；首选现有官方或镜像接口，失败或为空时通过 CFWidget 的公开项目数据补取，并校验项目 ID 与游戏类型。不下载模组。",
+    "effect": "network_read"
+  },
+  "plugin:gecl|curseforge_file": {
+    "title": "读取一个 CF 文件版本",
+    "description": "返回指定项目与文件的版本资料、下载信息及依赖信息，不开始安装。",
+    "effect": "network_read"
+  },
+  "plugin:gecl|curseforge_files": {
+    "title": "列出 CF 项目兼容文件",
+    "description": "按 request 中的 Minecraft 版本、加载器、分页条件查询该项目可用文件。",
+    "effect": "network_read"
+  },
+  "plugin:gecl|curseforge_install": {
+    "title": "安装 CF 模组及必需依赖",
+    "description": "向 instanceId 指定游戏安装 projectId；省略 fileId 时按目标游戏兼容条件选择文件。支持 jobId 取消和进度通道。",
+    "effect": "write"
+  },
+  "plugin:gecl|curseforge_installed": {
+    "title": "查询已安装 CF 项目索引",
+    "description": "返回游戏 ID 到 CF 项目数字 ID 列表的映射，供判断某版本是否装过某项目。",
+    "effect": "read"
+  },
+  "plugin:gecl|curseforge_project": {
+    "title": "读取 CF 项目资料",
+    "description": "获取项目名称、作者、图标、下载量与链接；不会下载模组文件。",
+    "effect": "network_read"
+  },
+  "plugin:gecl|curseforge_search": {
+    "title": "搜索 CF 模组",
+    "description": "request 支持关键词、MC 版本、加载器、分类和分页；返回项目列表及分页信息，数字 ID 与 Modrinth ID 不通用。",
+    "effect": "network_read"
+  },
+  "plugin:gecl|dismiss_launch": {
+    "title": "关闭一条已结束的启动提示",
+    "description": "只隐藏对应启动进度记录，不会终止 Minecraft 进程。",
+    "effect": "write"
+  },
+  "plugin:gecl|finish_setup": {
+    "title": "完成首次设置标记",
+    "description": "确认首次目录/账户设置流程已完成；不自动添加 Player，也不负责安装 Minecraft。",
+    "effect": "write"
+  },
+  "plugin:gecl|import_folder": {
+    "title": "导入已有游戏文件夹",
+    "description": "source 是原游戏来源，versionFile 是 preview_folder 返回的版本描述路径；复制、识别并创建本机游戏，返回新游戏 ID。",
+    "effect": "write"
+  },
+  "plugin:gecl|launch_progress": {
+    "title": "读取游戏启动进度",
+    "description": "返回各游戏的启动阶段、进度和错误状态；它不是文件下载进度表。",
+    "effect": "read"
+  },
+  "plugin:gecl|pack_artwork": {
+    "title": "预览本地整合包名称与图标",
+    "description": "只检查 source 的 .mrpack 清单与图标并缓存图片；不会安装包内 Minecraft 或 Mod。",
+    "effect": "write"
+  },
+  "plugin:gecl|preview_folder": {
+    "title": "扫描已有游戏版本",
+    "description": "识别 path 中可导入的版本，返回候选和 version_file；只做检测，不创建新游戏。",
+    "effect": "read"
+  },
+  "plugin:gecl|setup_status": {
+    "title": "查询首次设置缺项",
+    "description": "返回 needsDirectory、needsAccount、dataDirectory，供判断是否需要选择目录和添加账户。",
+    "effect": "read"
+  },
+  "plugin:gecl|world_backup": {
+    "title": "备份或恢复一个世界",
+    "description": "restore=false 将世界写成 archive ZIP；true 从 ZIP 恢复并覆盖现存目标世界，先保留旧世界副本。世界需未被游戏占用。",
+    "effect": "write"
+  },
+  "plugin:gecl|world_backup_directory": {
+    "title": "读取上次备份位置",
+    "description": "返回记住的世界备份文件夹；尚未选择过时为 null。",
+    "effect": "read"
+  },
+  "plugin:import|get_default_launcher_path": {
+    "title": "查找其他启动器默认目录",
+    "description": "按 launcherType 检测已知启动器的常用数据目录，未找到时返回 null；不扫描所有硬盘。",
+    "effect": "read"
+  },
+  "plugin:import|get_importable_instances": {
+    "title": "扫描其他启动器的游戏列表",
+    "description": "在 basePath 指定的启动器根目录中列出可导入的游戏名称。PCL 目录优先使用 gecl 的通用文件夹扫描。",
+    "effect": "read"
+  },
+  "plugin:import|is_valid_importable_instance": {
+    "title": "检查一个外部游戏是否可导入",
+    "description": "检查 instanceFolder 是否符合指定启动器的数据结构，只返回 true/false，不复制文件。",
+    "effect": "read"
+  },
+  "plugin:install|install_accept_shared_instance_invite": {
+    "title": "接受共享游戏邀请",
+    "description": "向上游共享服务接受邀请并取得待安装预览；不是本地文件夹导入。",
+    "effect": "upstream_write"
+  },
+  "plugin:install|install_bulk_update_content": {
+    "title": "批量更新已装内容",
+    "description": "为指定游戏提交所选模组或资源的更新任务，任务中执行下载与替换；返回任务快照。",
+    "effect": "write"
+  },
+  "plugin:install|install_create_instance": {
+    "title": "创建游戏版本",
+    "description": "按名称、Minecraft 版本、加载器及加载器版本创建游戏并下载所需组件；返回异步安装任务。",
+    "effect": "write"
+  },
+  "plugin:install|install_create_modpack_instance": {
+    "title": "安装整合包为新游戏",
+    "description": "读取本地 mrpack 或指定在线整合包版本，创建新的游戏目录并安排下载、解包和安装。",
+    "effect": "write"
+  },
+  "plugin:install|install_duplicate_instance": {
+    "title": "复制游戏版本",
+    "description": "复制已有游戏的文件与配置为新游戏，返回复制任务；不只是建立快捷方式。",
+    "effect": "write"
+  },
+  "plugin:install|install_existing_instance": {
+    "title": "补全或修复游戏",
+    "description": "为已有游戏检查并补全运行文件；force 为 true 会要求强制修复，可能重新下载文件。",
+    "effect": "write"
+  },
+  "plugin:install|install_get_modpack_preview": {
+    "title": "预览整合包",
+    "description": "读取整合包的名称、游戏版本、加载器等安装信息；在线来源可能下载包文件和缓存，但不创建游戏。",
+    "effect": "network_read"
+  },
+  "plugin:install|install_get_shared_instance_preview": {
+    "title": "预览共享游戏安装",
+    "description": "向共享服务查询指定共享游戏的安装预览；依赖上游共享服务和权限。",
+    "effect": "upstream_read"
+  },
+  "plugin:install|install_get_shared_instance_update_preview": {
+    "title": "预览共享游戏更新",
+    "description": "比较本地共享游戏与服务端版本，返回更新预览；没有更新时可为空。",
+    "effect": "upstream_read"
+  },
+  "plugin:install|install_import_instance": {
+    "title": "从其他启动器导入",
+    "description": "按指定启动器的目录结构导入一个游戏；PCL 或任意 .minecraft 目录优先使用 gecl 的文件夹预览及导入接口。",
+    "effect": "write"
+  },
+  "plugin:install|install_job_cancel": {
+    "title": "取消安装任务",
+    "description": "请求取消任务；已修改文件的任务按原安装流程执行回滚，不代表调用后立即停止。",
+    "effect": "write"
+  },
+  "plugin:install|install_job_dismiss": {
+    "title": "移除任务显示记录",
+    "description": "移除允许被关闭的安装任务记录；不删除成功安装的游戏，也不等于取消运行中任务。",
+    "effect": "write"
+  },
+  "plugin:install|install_job_get": {
+    "title": "查询一个安装任务",
+    "description": "按任务 UUID 读取当前状态、阶段、进度、错误与关联游戏 ID。",
+    "effect": "read"
+  },
+  "plugin:install|install_job_list": {
+    "title": "列出安装任务",
+    "description": "读取安装任务快照；includeFinished 决定是否包含已完成、失败或取消的记录。",
+    "effect": "read"
+  },
+  "plugin:install|install_job_pause": {
+    "title": "暂停安装任务",
+    "description": "请求在安装流程支持的检查点暂停；能否暂停取决于任务当前阶段。",
+    "effect": "write"
+  },
+  "plugin:install|install_job_resume": {
+    "title": "继续安装任务",
+    "description": "恢复已经暂停且可继续的安装任务。",
+    "effect": "write"
+  },
+  "plugin:install|install_job_retry": {
+    "title": "重试失败安装",
+    "description": "按原任务信息重试允许重试的安装任务，可能再次下载缺失文件。",
+    "effect": "write"
+  },
+  "plugin:install|install_job_support_details": {
+    "title": "生成安装报告",
+    "description": "返回任务的环境、时间线、错误上下文和日志摘录文本；不会主动上传报告。",
+    "effect": "read"
+  },
+  "plugin:install|install_pack_to_existing_instance": {
+    "title": "将整合包装入已有游戏",
+    "description": "在指定游戏上应用整合包内容及安装配置；会改动目标游戏，调用前应备份。",
+    "effect": "write"
+  },
+  "plugin:install|install_shared_instance": {
+    "title": "安装共享游戏",
+    "description": "向上游服务取得共享游戏内容并创建安装任务；依赖服务端授权，不是普通 mrpack 安装。",
+    "effect": "upstream_write"
+  },
+  "plugin:install|install_update_shared_instance": {
+    "title": "更新共享游戏",
+    "description": "根据上游共享配置更新已关联的游戏，可能下载和替换本地内容。",
+    "effect": "upstream_write"
+  },
+  "plugin:instance|instance_add_project_from_path": {
+    "title": "安装本地资源文件",
+    "description": "从本机绝对路径添加模组、资源包等到指定游戏；返回安装后的相对文件路径。",
+    "effect": "write"
+  },
+  "plugin:instance|instance_add_project_from_version": {
+    "title": "安装指定 Modrinth 文件",
+    "description": "按 Modrinth 文件版本 ID 下载单个项目文件并记录来源；需要自动处理前置时优先调用 install_project_with_dependencies。",
+    "effect": "write"
+  },
+  "plugin:instance|instance_cache_generated_icon": {
+    "title": "生成并缓存游戏图标",
+    "description": "把图标配置和图案字节渲染为图标，可写入最近使用列表；不会自动给某个游戏设置图标。",
+    "effect": "write"
+  },
+  "plugin:instance|instance_check_installed": {
+    "title": "检查项目是否已安装",
+    "description": "按 Modrinth 项目 ID 检查目标游戏是否已安装对应内容；不用于任意文件名或 CurseForge 数字 ID。",
+    "effect": "read"
+  },
+  "plugin:instance|instance_content": {
+    "title": "读取游戏内容列表",
+    "description": "读取指定游戏中可展示的内容及其平台信息；可按缓存策略补充在线元数据。",
+    "effect": "network_read"
+  },
+  "plugin:instance|instance_create_group": {
+    "title": "创建游戏分组",
+    "description": "新增游戏列表中的自定义分组；不创建游戏目录。",
+    "effect": "write"
+  },
+  "plugin:instance|instance_create_screenshot_group": {
+    "title": "创建截图分组",
+    "description": "新增截图分组并可把指定截图加入其中；截图 ID 应从截图列表取得。",
+    "effect": "write"
+  },
+  "plugin:instance|instance_delete_group": {
+    "title": "删除游戏分组",
+    "description": "删除分组及相关分组关系；不删除分组里的游戏文件。",
+    "effect": "delete"
+  },
+  "plugin:instance|instance_delete_screenshot_group": {
+    "title": "删除截图分组",
+    "description": "删除截图分组关系；不等同于删除截图图片。",
+    "effect": "delete"
+  },
+  "plugin:instance|instance_delete_screenshots": {
+    "title": "删除截图文件",
+    "description": "按截图键批量删除实际截图；不是只从分组中移除。",
+    "effect": "delete"
+  },
+  "plugin:instance|instance_desync_pack": {
+    "title": "取消资源同步",
+    "description": "让指定游戏不再同步某个全局资源；mode 决定保留本地副本还是移除同步文件。",
+    "effect": "write"
+  },
+  "plugin:instance|instance_edit": {
+    "title": "修改游戏配置",
+    "description": "修改指定游戏的名称、版本设置等允许编辑的字段；只发送确实要改的字段，结构见 EditInstance。",
+    "effect": "write"
+  },
+  "plugin:instance|instance_edit_generated_icon": {
+    "title": "生成并应用游戏图标",
+    "description": "用配置及图案字节生成图标并应用到游戏；onlyIfEmpty 可限制仅在没有图标时设置。",
+    "effect": "write"
+  },
+  "plugin:instance|instance_edit_icon": {
+    "title": "设置或清除游戏图标",
+    "description": "从本地图片设置游戏图标；iconPath 为 null 时清除自定义图标。",
+    "effect": "write"
+  },
+  "plugin:instance|instance_export_mrpack": {
+    "title": "导出整合包",
+    "description": "导出选中的文件；与在线文件哈希完全一致的资源写下载引用，修改过的或本地自制文件放入覆盖文件，支持自定义封面。",
+    "effect": "write"
+  },
+  "plugin:instance|instance_export_screenshots": {
+    "title": "导出截图",
+    "description": "把所选截图导出到指定本地位置；原截图仍保留。",
+    "effect": "write"
+  },
+  "plugin:instance|instance_get": {
+    "title": "读取一个游戏",
+    "description": "按内部游戏 ID 返回游戏配置；游戏不存在时返回 null。",
+    "effect": "read"
+  },
+  "plugin:instance|instance_get_command_history": {
+    "title": "读取游戏命令历史",
+    "description": "读取 Minecraft 的共享聊天命令历史文本；不是 Agent 命令记录，也不会执行游戏命令。",
+    "effect": "read"
+  },
+  "plugin:instance|instance_get_content_items": {
+    "title": "读取已装内容详情",
+    "description": "读取模组、资源包、光影等统一列表，包含识别出的名称、作者、图标、来源与版本信息。",
+    "effect": "network_read"
+  },
+  "plugin:instance|instance_get_dependencies_as_content_items": {
+    "title": "把依赖转为内容详情",
+    "description": "按给定的 Modrinth 依赖对象查询可展示的内容信息；只查询，不安装依赖。",
+    "effect": "network_read"
+  },
+  "plugin:instance|instance_get_full_path": {
+    "title": "取得游戏目录路径",
+    "description": "将内部游戏 ID 解析为该游戏的本机绝对目录路径。",
+    "effect": "read"
+  },
+  "plugin:instance|instance_get_game_setting_locale_labels": {
+    "title": "读取游戏设置译名",
+    "description": "取得指定语言的游戏设置名称，可按要求刷新翻译来源缓存；不修改游戏设置值。",
+    "effect": "network_read"
+  },
+  "plugin:instance|instance_get_global_synced_options": {
+    "title": "读取全局同步开关",
+    "description": "读取全局游戏选项同步策略；不是启动器完整设置。",
+    "effect": "read"
+  },
+  "plugin:instance|instance_get_initialized_synced_options": {
+    "title": "初始化并读取同步开关",
+    "description": "确保首次同步设置已初始化，再返回全局同步策略；可能写入初始化状态。",
+    "effect": "write"
+  },
+  "plugin:instance|instance_get_install_candidates": {
+    "title": "查询可安装目标",
+    "description": "根据项目和候选游戏检查兼容性及安装条件，返回每个目标的可安装版本或限制。",
+    "effect": "network_read"
+  },
+  "plugin:instance|instance_get_installed_project_ids": {
+    "title": "读取已装项目 ID",
+    "description": "返回游戏内识别到的 Modrinth 项目 ID 列表；不是所有本地文件的清单。",
+    "effect": "read"
+  },
+  "plugin:instance|instance_get_linked_modpack_content": {
+    "title": "读取关联整合包内容",
+    "description": "返回当前游戏所关联的 Modrinth 整合包内容信息；不自动更新游戏。",
+    "effect": "network_read"
+  },
+  "plugin:instance|instance_get_linked_modpack_info": {
+    "title": "读取关联整合包信息",
+    "description": "返回游戏关联的整合包项目信息；没有关联时为 null。",
+    "effect": "network_read"
+  },
+  "plugin:instance|instance_get_local_game_options_config": {
+    "title": "读取本地游戏设置编辑状态",
+    "description": "读取该游戏可编辑的 options 设置及修订号；修改前应先读取并保留修订信息。",
+    "effect": "read"
+  },
+  "plugin:instance|instance_get_many": {
+    "title": "批量读取游戏",
+    "description": "根据内部游戏 ID 数组读取多个游戏的配置。",
+    "effect": "read"
+  },
+  "plugin:instance|instance_get_mod_full_path": {
+    "title": "取得资源文件绝对路径",
+    "description": "把游戏 ID 和游戏内相对资源路径解析为绝对路径，仍受目录边界检查。",
+    "effect": "read"
+  },
+  "plugin:instance|instance_get_optimal_jre_key": {
+    "title": "查询合适的 Java",
+    "description": "根据游戏版本与加载器查询合适的已登记 Java 配置；没有合适 Java 时可为空，不会自动安装。",
+    "effect": "read"
+  },
+  "plugin:instance|instance_get_pack_export_candidates": {
+    "title": "列出可导出文件",
+    "description": "列出游戏中可选的整合包覆盖文件，可指定相对子目录；不会生成整合包。",
+    "effect": "read"
+  },
+  "plugin:instance|instance_get_pack_sync_preview": {
+    "title": "预览资源同步",
+    "description": "检查游戏中的一个资源加入全局同步后的影响及冲突。",
+    "effect": "read"
+  },
+  "plugin:instance|instance_get_projects": {
+    "title": "读取内容文件映射",
+    "description": "返回游戏内资源的相对路径到文件元数据映射，可补充在线来源信息。",
+    "effect": "network_read"
+  },
+  "plugin:instance|instance_get_recent_icon_configs": {
+    "title": "读取最近图标配置",
+    "description": "返回最近使用过的生成图标配置。",
+    "effect": "read"
+  },
+  "plugin:instance|instance_get_synced_game_options_config": {
+    "title": "读取共享游戏设置编辑状态",
+    "description": "读取全局同步的游戏设置及修订号，供预览和提交修改使用。",
+    "effect": "read"
+  },
+  "plugin:instance|instance_get_synced_option_join_preview": {
+    "title": "预览加入同步",
+    "description": "检查一个游戏开启某类同步时与现有共享数据的冲突和可选处理方式。",
+    "effect": "read"
+  },
+  "plugin:instance|instance_get_synced_options_overview": {
+    "title": "读取游戏同步概况",
+    "description": "返回该游戏各类同步项目是否开启、状态和相关信息。",
+    "effect": "read"
+  },
+  "plugin:instance|instance_import_screenshot_groups": {
+    "title": "导入截图分组关系",
+    "description": "按给定分组数据导入或合并截图分组；不是导入截图图片本身。",
+    "effect": "write"
+  },
+  "plugin:instance|instance_install_project_with_dependencies": {
+    "title": "安装模组及前置",
+    "description": "按项目、指定或自动选择的兼容版本解析 Modrinth 依赖计划，安装项目及所需前置并返回处理计划。",
+    "effect": "write"
+  },
+  "plugin:instance|instance_is_file_on_modrinth": {
+    "title": "按文件内容查询来源",
+    "description": "计算本地文件标识并查询 Modrinth 是否存在完全匹配的文件；不是只比较文件名。",
+    "effect": "network_read"
+  },
+  "plugin:instance|instance_kill": {
+    "title": "停止一个游戏",
+    "description": "终止该游戏关联的 Minecraft 进程；未保存的游戏进度可能丢失。",
+    "effect": "write"
+  },
+  "plugin:instance|instance_list": {
+    "title": "列出全部游戏",
+    "description": "返回启动器登记的所有游戏配置及内部 ID。",
+    "effect": "read"
+  },
+  "plugin:instance|instance_list_all_screenshots": {
+    "title": "列出全部截图",
+    "description": "读取所有游戏中的截图及其所属游戏信息。",
+    "effect": "read"
+  },
+  "plugin:instance|instance_list_game_options_sync_sources": {
+    "title": "列出可选设置同步源",
+    "description": "返回可用作游戏设置同步基础的游戏候选项。",
+    "effect": "read"
+  },
+  "plugin:instance|instance_list_groups": {
+    "title": "列出游戏分组",
+    "description": "读取自定义游戏分组及排序信息。",
+    "effect": "read"
+  },
+  "plugin:instance|instance_list_screenshot_groups": {
+    "title": "列出截图分组",
+    "description": "读取已登记的截图分组。",
+    "effect": "read"
+  },
+  "plugin:instance|instance_list_screenshots": {
+    "title": "列出一个游戏的截图",
+    "description": "读取指定游戏的截图及后续打开、移动和删除所需的截图键。",
+    "effect": "read"
+  },
+  "plugin:instance|instance_list_synced_packs": {
+    "title": "列出全局同步资源",
+    "description": "按资源类型列出全局同步的模组、资源包等；不是在线整合包搜索。",
+    "effect": "read"
+  },
+  "plugin:instance|instance_list_synced_screenshots": {
+    "title": "列出共享截图",
+    "description": "读取全局截图同步目录中的截图信息。",
+    "effect": "read"
+  },
+  "plugin:instance|instance_list_synced_servers": {
+    "title": "列出同步服务器",
+    "description": "读取全局同步的多人服务器条目；不会连接服务器。",
+    "effect": "read"
+  },
+  "plugin:instance|instance_move_screenshots": {
+    "title": "移动截图到其他游戏",
+    "description": "将所选截图文件移动到目标游戏截图目录，返回更新后的截图键。",
+    "effect": "write"
+  },
+  "plugin:instance|instance_open_screenshot": {
+    "title": "用系统程序打开截图",
+    "description": "按截图键解析实际图片路径并交给系统打开。",
+    "effect": "ui"
+  },
+  "plugin:instance|instance_open_synced_options_folder": {
+    "title": "打开同步设置目录",
+    "description": "在文件管理器中打开共享游戏选项目录。",
+    "effect": "ui"
+  },
+  "plugin:instance|instance_preview_local_game_option_changes": {
+    "title": "预览本地设置变更",
+    "description": "校验游戏设置变更请求及修订冲突，返回预览状态；不提交设置修改。",
+    "effect": "read"
+  },
+  "plugin:instance|instance_preview_synced_game_option_changes": {
+    "title": "预览共享设置变更",
+    "description": "校验共享游戏设置的变更及冲突，返回预览；不保存新值。",
+    "effect": "read"
+  },
+  "plugin:instance|instance_rebuild_synced_options": {
+    "title": "重建同步关系",
+    "description": "重新建立指定游戏或全部游戏的设置同步关系；会更新相关文件链接或同步内容。",
+    "effect": "write"
+  },
+  "plugin:instance|instance_refresh_content_updates": {
+    "title": "刷新资源更新检查",
+    "description": "重新查询目标游戏资源的可用更新并更新检查缓存；不会直接安装更新。",
+    "effect": "network_read"
+  },
+  "plugin:instance|instance_remove": {
+    "title": "删除游戏版本",
+    "description": "删除目标游戏及其目录中的内容；包括其中的模组、配置和存档，应先备份。",
+    "effect": "delete"
+  },
+  "plugin:instance|instance_remove_project": {
+    "title": "删除已装资源",
+    "description": "按游戏内相对路径移除模组、资源包或光影文件及管理记录。",
+    "effect": "delete"
+  },
+  "plugin:instance|instance_remove_synced_pack": {
+    "title": "删除全局同步资源",
+    "description": "移除全局同步资源及关联的同步关系；会影响使用该共享资源的游戏。",
+    "effect": "delete"
+  },
+  "plugin:instance|instance_remove_synced_server": {
+    "title": "删除全局同步服务器",
+    "description": "从全局同步服务器列表移除指定条目，并处理关联游戏的同步项。",
+    "effect": "delete"
+  },
+  "plugin:instance|instance_rename_group": {
+    "title": "重命名游戏分组",
+    "description": "修改一个自定义游戏分组的显示名称。",
+    "effect": "write"
+  },
+  "plugin:instance|instance_rename_screenshot_group": {
+    "title": "重命名截图分组",
+    "description": "修改截图分组的显示名称。",
+    "effect": "write"
+  },
+  "plugin:instance|instance_repair_managed_modrinth": {
+    "title": "修复关联整合包",
+    "description": "为受管理的 Modrinth 整合包游戏创建修复任务，依据其关联版本恢复所需文件。",
+    "effect": "write"
+  },
+  "plugin:instance|instance_run": {
+    "title": "启动游戏",
+    "description": "按目标游戏配置准备运行环境并启动 Minecraft，可指定自动加入的服务器地址。",
+    "effect": "write"
+  },
+  "plugin:instance|instance_save_edited_screenshot": {
+    "title": "保存编辑后的截图",
+    "description": "把 PNG 字节按指定模式覆盖原截图或另存为副本；返回保存后的截图信息。",
+    "effect": "write"
+  },
+  "plugin:instance|instance_save_local_game_option_changes": {
+    "title": "保存本地游戏设置",
+    "description": "按编辑请求和修订号提交 options 设置；返回成功、延后、失败及冲突等结果。",
+    "effect": "write"
+  },
+  "plugin:instance|instance_save_synced_game_option_changes": {
+    "title": "保存共享游戏设置",
+    "description": "提交全局共享的游戏设置并处理同步；可能影响启用了对应同步的多个游戏。",
+    "effect": "write"
+  },
+  "plugin:instance|instance_set_command_history": {
+    "title": "保存游戏命令历史",
+    "description": "覆盖共享 Minecraft 命令历史文本并按上限规范化内容；不会在游戏里执行这些命令。",
+    "effect": "write"
+  },
+  "plugin:instance|instance_set_global_synced_option": {
+    "title": "设置全局同步开关",
+    "description": "修改一类全局同步功能，可选择一个游戏作为初始数据源；可能改变多个游戏的同步关系。",
+    "effect": "write"
+  },
+  "plugin:instance|instance_set_group_memberships": {
+    "title": "修改游戏分组成员",
+    "description": "批量更新游戏所属的自定义分组；不移动游戏目录。",
+    "effect": "write"
+  },
+  "plugin:instance|instance_set_group_order": {
+    "title": "调整游戏分组顺序",
+    "description": "按分组 ID 数组保存自定义分组的显示顺序。",
+    "effect": "write"
+  },
+  "plugin:instance|instance_set_project_locked": {
+    "title": "锁定或解锁资源更新",
+    "description": "设置一个已装资源的更新锁定状态；不是操作系统文件锁，也不会禁用模组。",
+    "effect": "write"
+  },
+  "plugin:instance|instance_set_screenshot_group_memberships": {
+    "title": "修改截图分组成员",
+    "description": "批量更新截图属于哪些分组；不移动截图图片文件。",
+    "effect": "write"
+  },
+  "plugin:instance|instance_set_synced_option": {
+    "title": "设置单个游戏同步",
+    "description": "开启或关闭该游戏的一类同步；有冲突时需要传入预览所对应的处理决定。",
+    "effect": "write"
+  },
+  "plugin:instance|instance_set_synced_pack_enabled": {
+    "title": "启用或禁用全局同步资源",
+    "description": "修改一个全局共享资源的启用状态，会影响同步使用它的游戏。",
+    "effect": "write"
+  },
+  "plugin:instance|instance_share_can_current_user_use": {
+    "title": "检查共享服务权限",
+    "description": "查询当前上游账户能否使用在线游戏共享；本地离线账户不提供上游登录身份。",
+    "effect": "upstream_read"
+  },
+  "plugin:instance|instance_share_create_invite_link": {
+    "title": "创建共享游戏邀请",
+    "description": "在上游服务创建邀请链接，可限制有效期和使用次数；会改变服务端邀请状态。",
+    "effect": "upstream_write"
+  },
+  "plugin:instance|instance_share_get_invites": {
+    "title": "列出共享游戏邀请",
+    "description": "读取指定共享游戏的邀请记录，依赖上游权限。",
+    "effect": "upstream_read"
+  },
+  "plugin:instance|instance_share_get_publish_preview": {
+    "title": "预览共享游戏发布",
+    "description": "取得共享游戏发布所需的差异和发布信息；不执行发布。",
+    "effect": "upstream_read"
+  },
+  "plugin:instance|instance_share_get_users": {
+    "title": "列出共享游戏用户",
+    "description": "读取共享游戏的成员及邀请状态。",
+    "effect": "upstream_read"
+  },
+  "plugin:instance|instance_share_invite_users": {
+    "title": "邀请用户加入共享游戏",
+    "description": "向上游共享游戏添加指定用户的邀请；这是对其他用户和服务端状态的操作。",
+    "effect": "upstream_write"
+  },
+  "plugin:instance|instance_share_publish": {
+    "title": "发布共享游戏",
+    "description": "把游戏及选中的配置路径发布到上游共享服务；不是导出本地 mrpack。",
+    "effect": "upstream_write"
+  },
+  "plugin:instance|instance_share_remove_users": {
+    "title": "移除共享游戏成员",
+    "description": "从共享服务中移除指定成员或待接受邀请者，可能撤销其访问权限。",
+    "effect": "upstream_write"
+  },
+  "plugin:instance|instance_share_revoke_invite": {
+    "title": "撤销共享游戏邀请",
+    "description": "在上游服务撤销指定邀请链接。",
+    "effect": "upstream_write"
+  },
+  "plugin:instance|instance_share_unlink": {
+    "title": "解除共享游戏关联",
+    "description": "解除本地游戏与共享实例的管理关联；不是导出整合包。",
+    "effect": "write"
+  },
+  "plugin:instance|instance_share_unpublish": {
+    "title": "取消共享游戏发布",
+    "description": "在上游服务取消游戏共享发布，会影响其他人的共享访问。",
+    "effect": "upstream_write"
+  },
+  "plugin:instance|instance_switch_project_version_with_dependencies": {
+    "title": "更换资源版本及前置",
+    "description": "将一个已装 Modrinth 资源切换到指定文件版本，同时重新处理依赖并返回新文件相对路径。",
+    "effect": "write"
+  },
+  "plugin:instance|instance_sync_content_files": {
+    "title": "重新扫描本地资源",
+    "description": "扫描实际模组、资源包和光影文件，更新内容索引及外部改动状态；不会把扫描当成下载。",
+    "effect": "write"
+  },
+  "plugin:instance|instance_sync_pack": {
+    "title": "加入全局资源同步",
+    "description": "把游戏中的指定模组或资源包纳入全局资源同步；会改变该文件的管理和共享关系。",
+    "effect": "write"
+  },
+  "plugin:instance|instance_toggle_disable_project": {
+    "title": "启用或禁用一个资源",
+    "description": "设置资源启用状态；desiredEnabled 省略时切换，true 启用、false 禁用，返回调整后的路径。",
+    "effect": "write"
+  },
+  "plugin:instance|instance_update_managed_modrinth_version": {
+    "title": "更新关联整合包版本",
+    "description": "为关联的 Modrinth 整合包切换到指定包版本并创建安装任务；可能替换模组与配置。",
+    "effect": "write"
+  },
+  "plugin:instance|instance_update_project": {
+    "title": "更新一个已装资源",
+    "description": "根据目标游戏的兼容条件更新一个 Modrinth 资源到可用版本，返回新文件路径。",
+    "effect": "write"
+  },
+  "plugin:instance|instance_update_synced_server": {
+    "title": "修改同步服务器条目",
+    "description": "保存完整的全局同步服务器条目，并更新同步使用该条目的游戏。",
+    "effect": "write"
+  },
+  "plugin:instance|instance_upload_synced_pack": {
+    "title": "添加全局同步资源",
+    "description": "从本地文件把模组、资源包等加入全局同步库，并记录适用的游戏版本；这里的 upload 是本地同步库导入。",
+    "effect": "write"
+  },
+  "plugin:jre|get_java_versions": {
+    "title": "读取已登记 Java",
+    "description": "返回 Java 主版本号与所选 Java 配置的映射；不是扫描电脑上的全部 Java。",
+    "effect": "read"
+  },
+  "plugin:jre|jre_auto_install_java": {
+    "title": "下载并安装 Java",
+    "description": "按主版本号自动取得当前平台所需的 Java 运行环境，返回本地安装路径。",
+    "effect": "write"
+  },
+  "plugin:jre|jre_find_filtered_jres": {
+    "title": "扫描可用 Java",
+    "description": "查找系统中的 Java，并可按主版本号筛选；返回检测到的配置数组。",
+    "effect": "read"
+  },
+  "plugin:jre|jre_get_jre": {
+    "title": "检测一个 Java 程序",
+    "description": "运行或检测给定路径的 Java，取得主版本、架构和路径等配置。",
+    "effect": "read"
+  },
+  "plugin:jre|jre_get_max_memory": {
+    "title": "读取可分配内存上限",
+    "description": "返回系统检测到的内存总量，单位 KiB（字节数除以 1024）；不是 Minecraft 当前已分配内存。",
+    "effect": "read"
+  },
+  "plugin:jre|jre_test_jre": {
+    "title": "验证 Java 主版本",
+    "description": "测试指定路径的 Java 是否适合要求的主版本，返回布尔值。",
+    "effect": "read"
+  },
+  "plugin:jre|set_java_version": {
+    "title": "登记所选 Java",
+    "description": "保存一个检测得到的完整 JavaVersion 配置，作为对应主版本的 Java；不能仅传数字 17。",
+    "effect": "write"
+  },
+  "plugin:logs|logs_clear_live_log_buffer": {
+    "title": "清空实时日志缓冲",
+    "description": "清空目标游戏在启动器内的实时日志缓冲；不等同于删除磁盘日志文件。",
+    "effect": "write"
+  },
+  "plugin:logs|logs_delete_logs": {
+    "title": "删除游戏日志",
+    "description": "删除指定游戏的日志文件；需要保留排错证据时应先导出。",
+    "effect": "delete"
+  },
+  "plugin:logs|logs_delete_logs_by_filename": {
+    "title": "删除指定日志",
+    "description": "按日志类型和文件名删除一个游戏日志或崩溃报告。",
+    "effect": "delete"
+  },
+  "plugin:logs|logs_get_latest_log_cursor": {
+    "title": "增量读取最新日志",
+    "description": "从指定字节游标读取最新日志并返回新游标；首次用 0，后续使用上次返回值。",
+    "effect": "read"
+  },
+  "plugin:logs|logs_get_live_log_buffer": {
+    "title": "读取实时游戏日志",
+    "description": "读取启动器内保存的当前游戏输出缓冲，并经过已有敏感内容遮蔽处理。",
+    "effect": "read"
+  },
+  "plugin:logs|logs_get_logs": {
+    "title": "列出游戏日志",
+    "description": "读取游戏的日志记录列表；clearContents 控制返回内容是否清空，不是删除磁盘文件。",
+    "effect": "read"
+  },
+  "plugin:logs|logs_get_logs_by_filename": {
+    "title": "读取指定日志详情",
+    "description": "根据类型和文件名读取一个日志记录及其信息。",
+    "effect": "read"
+  },
+  "plugin:logs|logs_get_output_by_filename": {
+    "title": "读取指定日志正文",
+    "description": "根据类型和文件名返回经过遮蔽处理的日志文本。",
+    "effect": "read"
+  },
+  "plugin:logs|logs_log_webview": {
+    "title": "写入前端诊断日志",
+    "description": "按级别向启动器日志记录一条前端诊断消息；不会把消息发送到 Minecraft 控制台。",
+    "effect": "internal"
+  },
+  "plugin:metadata|metadata_get_game_versions": {
+    "title": "读取 Minecraft 版本清单",
+    "description": "取得可用于安装的 Minecraft 版本元数据清单，可能读取网络缓存。",
+    "effect": "network_read"
+  },
+  "plugin:metadata|metadata_get_loader_versions": {
+    "title": "读取加载器版本清单",
+    "description": "按 fabric、forge 等加载器名称取得可用版本及其元数据。",
+    "effect": "network_read"
+  },
+  "plugin:minecraft-skins|add_and_equip_custom_skin": {
+    "title": "添加并使用自定义皮肤",
+    "description": "保存上传的皮肤图片并为当前正版档案应用；离线账户并不因此获得所有版本可见的换肤功能。",
+    "effect": "write"
+  },
+  "plugin:minecraft-skins|equip_skin": {
+    "title": "应用已有皮肤",
+    "description": "使用可用皮肤列表中返回的完整 Skin 对象切换当前正版档案皮肤。",
+    "effect": "write"
+  },
+  "plugin:minecraft-skins|flush_pending_skin_change": {
+    "title": "提交待应用皮肤",
+    "description": "提交当前档案排队的皮肤变更；用于皮肤页面内部处理待保存状态。",
+    "effect": "write"
+  },
+  "plugin:minecraft-skins|flush_pending_skin_change_for_profile": {
+    "title": "提交指定档案的皮肤",
+    "description": "为给定 Minecraft 档案 UUID 提交排队中的皮肤变更，不是选择默认账户。",
+    "effect": "write"
+  },
+  "plugin:minecraft-skins|get_available_capes": {
+    "title": "读取可用披风",
+    "description": "返回当前正版档案可用的披风信息；不会获得账户未拥有的披风。",
+    "effect": "network_read"
+  },
+  "plugin:minecraft-skins|get_available_skins": {
+    "title": "读取可用皮肤",
+    "description": "返回当前档案可选皮肤及其完整 Skin 对象，供切换或编辑接口使用。",
+    "effect": "network_read"
+  },
+  "plugin:minecraft-skins|get_dragged_skin_data": {
+    "title": "读取拖入的皮肤图片",
+    "description": "从本地路径读取皮肤图片字节，供后续规范化、保存和应用。",
+    "effect": "read"
+  },
+  "plugin:minecraft-skins|normalize_skin_texture": {
+    "title": "规范化皮肤图片",
+    "description": "把给定图片 URL 或字节解析为规范化皮肤图片字节；不会直接应用皮肤。",
+    "effect": "network_read"
+  },
+  "plugin:minecraft-skins|remove_custom_skin": {
+    "title": "移除自定义皮肤",
+    "description": "从启动器皮肤库移除指定自定义皮肤；传入列表中实际存在的 Skin 对象。",
+    "effect": "delete"
+  },
+  "plugin:minecraft-skins|save_custom_skin": {
+    "title": "编辑自定义皮肤",
+    "description": "保存已有皮肤的图片、体型和披风设置；replaceTexture 决定是否替换纹理。",
+    "effect": "write"
+  },
+  "plugin:minecraft-skins|set_custom_skin_order": {
+    "title": "调整自定义皮肤顺序",
+    "description": "按皮肤纹理键数组保存皮肤库中的排列顺序。",
+    "effect": "write"
+  },
+  "plugin:minecraft-skins|unequip_skin": {
+    "title": "恢复默认皮肤",
+    "description": "取消当前自定义皮肤，恢复当前正版档案的默认皮肤状态。",
+    "effect": "write"
+  },
+  "plugin:mr-auth|get": {
+    "title": "读取上游账户兼容占位",
+    "description": "GeCL 已移除 Modrinth 账户登录，这个兼容接口固定返回 null。",
+    "effect": "disabled"
+  },
+  "plugin:mr-auth|get_all": {
+    "title": "读取上游账户列表兼容占位",
+    "description": "GeCL 已移除 Modrinth 账户登录，这个兼容接口固定返回空数组。",
+    "effect": "disabled"
+  },
+  "plugin:onboarding-checklist|get_onboarding_checklist": {
+    "title": "读取引导完成状态",
+    "description": "返回原有新手清单的完成情况；不会重新开启首次设置弹窗。",
+    "effect": "read"
+  },
+  "plugin:process|process_get_all": {
+    "title": "列出启动器管理的进程",
+    "description": "返回当前管理的 Minecraft 进程及其进程记录 UUID；不列出 Windows 所有程序。",
+    "effect": "read"
+  },
+  "plugin:process|process_get_by_instance_id": {
+    "title": "查询游戏关联进程",
+    "description": "返回指定游戏当前管理的进程记录。",
+    "effect": "read"
+  },
+  "plugin:process|process_kill": {
+    "title": "终止指定游戏进程",
+    "description": "按启动器进程记录 UUID 终止进程；不是传 Windows PID，可能丢失未保存游戏内容。",
+    "effect": "write"
+  },
+  "plugin:process|process_wait_for": {
+    "title": "等待游戏进程结束",
+    "description": "等待给定进程记录退出后返回；等待超过 CLI 时限不会自动结束游戏。",
+    "effect": "read"
+  },
+  "plugin:reports|reports_create": {
+    "title": "提交平台举报",
+    "description": "向上游平台提交举报请求，会产生服务端记录；不是生成本地错误报告。",
+    "effect": "upstream_write"
+  },
+  "plugin:settings|cancel_directory_change": {
+    "title": "取消数据目录迁移",
+    "description": "取消当前正在进行的应用数据目录迁移，按原流程处理恢复。",
+    "effect": "write"
+  },
+  "plugin:settings|download_sources_get": {
+    "title": "读取下载源策略",
+    "description": "读取官方源、镜像源的选择策略以及慢速切换阈值。",
+    "effect": "read"
+  },
+  "plugin:settings|download_sources_set": {
+    "title": "修改下载源策略",
+    "description": "保存官方优先、镜像优先或只用一种源的策略及慢速观察参数；不负责开关系统代理。",
+    "effect": "write"
+  },
+  "plugin:settings|settings_get": {
+    "title": "读取启动器完整设置",
+    "description": "返回启动器完整设置对象；修改设置前先读取。",
+    "effect": "read"
+  },
+  "plugin:settings|settings_set": {
+    "title": "保存启动器完整设置",
+    "description": "校验并保存完整 Settings 对象；应读取后仅修改目标字段，再提交完整对象，避免重置其他设置。",
+    "effect": "write"
+  },
+  "plugin:settings|store_cleanup": {
+    "title": "清理可回收缓存",
+    "description": "清理内容存储中符合回收条件的缓存，返回释放的字节数；不是删除全部游戏。",
+    "effect": "delete"
+  },
+  "plugin:settings|store_set_cache_limit": {
+    "title": "设置存储缓存上限",
+    "description": "按字节数设置内容缓存容量上限；不会改变游戏内存设置。",
+    "effect": "write"
+  },
+  "plugin:settings|store_usage": {
+    "title": "查询内容存储占用",
+    "description": "返回内容存储的占用、缓存及可回收等统计。",
+    "effect": "read"
+  },
+  "plugin:settings|store_verify": {
+    "title": "验证或修复内容存储",
+    "description": "检查存储文件的完整性；repair 为 false 只检查，为 true 时执行允许的修复，进度通过通道返回。",
+    "effect": "write"
+  },
+  "plugin:shortcuts|create_instance_shortcut": {
+    "title": "创建游戏启动快捷方式",
+    "description": "在指定输出位置生成启动目标游戏的系统快捷方式，可附带直接加入服务器或单人世界的参数。",
+    "effect": "write"
+  },
+  "plugin:tags|tags_get_categories": {
+    "title": "读取项目分类",
+    "description": "返回模组、资源包等内容的分类标签，供搜索筛选使用。",
+    "effect": "network_read"
+  },
+  "plugin:tags|tags_get_donation_platforms": {
+    "title": "读取捐赠平台标签",
+    "description": "返回上游支持的捐赠平台定义；不会发起付款。",
+    "effect": "network_read"
+  },
+  "plugin:tags|tags_get_game_versions": {
+    "title": "读取搜索用游戏版本标签",
+    "description": "返回内容搜索使用的 Minecraft 版本标签；不是完整游戏安装元数据。",
+    "effect": "network_read"
+  },
+  "plugin:tags|tags_get_loaders": {
+    "title": "读取加载器标签",
+    "description": "返回内容搜索的加载器标签和相关项目类型信息。",
+    "effect": "network_read"
+  },
+  "plugin:tags|tags_get_report_types": {
+    "title": "读取举报类型",
+    "description": "返回上游允许的举报类型名称；不会提交举报。",
+    "effect": "network_read"
+  },
+  "plugin:users|block_user": {
+    "title": "屏蔽平台用户",
+    "description": "在上游账户关系中屏蔽指定用户，需要上游账户权限；不是删除本地游玩账户。",
+    "effect": "upstream_write"
+  },
+  "plugin:users|change_user_avatar": {
+    "title": "修改平台用户头像",
+    "description": "向上游上传头像图片，需要对应用户的编辑权限；不是修改 Minecraft 皮肤。",
+    "effect": "upstream_write"
+  },
+  "plugin:users|delete_user_avatar": {
+    "title": "删除平台用户头像",
+    "description": "删除上游用户的自定义头像，需要账户权限。",
+    "effect": "upstream_write"
+  },
+  "plugin:users|get_blocked_users": {
+    "title": "读取平台屏蔽名单",
+    "description": "返回当前上游账户屏蔽的用户 ID；GeCL 的离线账户不能提供该授权。",
+    "effect": "upstream_read"
+  },
+  "plugin:users|get_user_collections": {
+    "title": "读取平台用户收藏集",
+    "description": "查询指定 Modrinth 用户的收藏集；能读取的范围由平台权限决定。",
+    "effect": "network_read"
+  },
+  "plugin:users|get_user_organizations": {
+    "title": "读取平台用户组织",
+    "description": "查询指定 Modrinth 用户所属组织。",
+    "effect": "network_read"
+  },
+  "plugin:users|get_user_preferences": {
+    "title": "读取平台用户偏好",
+    "description": "查询上游账户偏好，需要对应的上游权限；不是启动器设置。",
+    "effect": "upstream_read"
+  },
+  "plugin:users|get_user_profile": {
+    "title": "读取平台作者资料",
+    "description": "查询指定 Modrinth 用户或作者的公开资料。",
+    "effect": "network_read"
+  },
+  "plugin:users|get_user_projects": {
+    "title": "读取平台作者项目",
+    "description": "查询指定 Modrinth 作者的项目列表。",
+    "effect": "network_read"
+  },
+  "plugin:users|patch_user": {
+    "title": "修改平台用户资料",
+    "description": "按平台允许的补丁字段修改远程用户资料，需要授权。",
+    "effect": "upstream_write"
+  },
+  "plugin:users|patch_user_preferences": {
+    "title": "修改平台用户偏好",
+    "description": "修改远程账户偏好设置，需要上游账户权限。",
+    "effect": "upstream_write"
+  },
+  "plugin:users|search_user": {
+    "title": "搜索平台用户",
+    "description": "按查询词搜索 Modrinth 用户；不是搜索本地离线账户。",
+    "effect": "network_read"
+  },
+  "plugin:users|unblock_user": {
+    "title": "取消屏蔽平台用户",
+    "description": "在上游账户关系中解除屏蔽，需要上游账户权限。",
+    "effect": "upstream_write"
+  },
+  "plugin:utils|cancel_debug_info_export": {
+    "title": "取消诊断包导出",
+    "description": "按导出任务 ID 请求取消正在进行的诊断信息打包；不会删除游戏。",
+    "effect": "write"
+  },
+  "plugin:utils|export_debug_info": {
+    "title": "导出诊断信息包",
+    "description": "把启动器诊断信息写入指定本地路径并提供进度；返回是否完成，不会主动上传。",
+    "effect": "write"
+  },
+  "plugin:utils|get_image_thumbnail": {
+    "title": "读取图片缩略图",
+    "description": "从允许访问的本地图片生成或读取缩略图，返回前端可用的图片地址；尺寸限制在 32 到 512。",
+    "effect": "read"
+  },
+  "plugin:utils|get_opening_command": {
+    "title": "读取启动时的操作载荷",
+    "description": "读取这次启动的深链接或打开文件载荷；不代表执行任意命令行。",
+    "effect": "read"
+  },
+  "plugin:utils|get_os": {
+    "title": "读取操作系统信息",
+    "description": "返回当前运行平台信息。",
+    "effect": "read"
+  },
+  "plugin:utils|highlight_in_folder": {
+    "title": "在文件管理器中定位",
+    "description": "打开文件所在位置并尝试选中指定文件。",
+    "effect": "ui"
+  },
+  "plugin:utils|is_network_metered": {
+    "title": "检测按流量计费网络",
+    "description": "返回系统报告的当前网络是否按流量计费；不是测速或检查代理。",
+    "effect": "read"
+  },
+  "plugin:utils|open_path": {
+    "title": "用系统程序打开路径",
+    "description": "按系统关联打开文件或目录；不接受脚本代码作为操作参数。",
+    "effect": "ui"
+  },
+  "plugin:utils|progress_bars_list": {
+    "title": "读取通用进度条",
+    "description": "返回启动器当前通用加载进度条映射；安装任务另有 install_job_list 接口。",
+    "effect": "read"
+  },
+  "plugin:utils|should_disable_mouseover": {
+    "title": "读取悬停兼容标志",
+    "description": "返回当前平台是否需禁用部分悬停效果，用于前端兼容逻辑。",
+    "effect": "internal"
+  },
+  "plugin:utils|show_app_db_backups_folder": {
+    "title": "打开数据库备份目录",
+    "description": "在文件管理器打开启动器数据库备份所在目录。",
+    "effect": "ui"
+  },
+  "plugin:utils|show_launcher_logs_folder": {
+    "title": "打开启动器日志目录",
+    "description": "在文件管理器打开启动器自己的日志目录，不是某个游戏的日志目录。",
+    "effect": "ui"
+  },
+  "plugin:worlds|add_server_to_instance": {
+    "title": "添加多人服务器",
+    "description": "在目标游戏的 servers.dat 添加一个服务器条目并返回其索引；不安装或启动服务端。",
+    "effect": "write"
+  },
+  "plugin:worlds|backup_world": {
+    "title": "备份世界到游戏备份目录",
+    "description": "旧版备份接口：把世界打包到游戏的 backups 目录并返回大小；指定位置及恢复请用 gecl 的 world_backup 接口。",
+    "effect": "write"
+  },
+  "plugin:worlds|delete_world": {
+    "title": "删除单人世界",
+    "description": "删除指定游戏 saves 中的世界文件夹；world 必须是世界文件夹名，不是显示名称。",
+    "effect": "delete"
+  },
+  "plugin:worlds|desync_server": {
+    "title": "取消服务器条目同步",
+    "description": "解除游戏中某个同步服务器条目的同步，按 mode 保留或移除本地条目。",
+    "effect": "write"
+  },
+  "plugin:worlds|edit_server_in_instance": {
+    "title": "修改多人服务器条目",
+    "description": "按服务器列表索引修改名称、地址与服务器资源包策略；不会编辑远程服务器配置。",
+    "effect": "write"
+  },
+  "plugin:worlds|ensure_managed_server_in_instance": {
+    "title": "确保服务器条目存在",
+    "description": "按给定名称与地址创建或更新受管理的游戏内服务器条目。",
+    "effect": "write"
+  },
+  "plugin:worlds|get_instance_protocol_version": {
+    "title": "读取游戏网络协议版本",
+    "description": "返回游戏所用 Minecraft 协议版本，无法识别时为空，用于查询服务器状态。",
+    "effect": "read"
+  },
+  "plugin:worlds|get_instance_worlds": {
+    "title": "列出游戏世界和服务器",
+    "description": "读取目标游戏的本地世界及多人服务器列表，包含显示状态与相关元数据。",
+    "effect": "read"
+  },
+  "plugin:worlds|get_recent_worlds": {
+    "title": "列出最近世界",
+    "description": "按数量及显示状态筛选最近访问的世界记录，附带所属游戏信息。",
+    "effect": "read"
+  },
+  "plugin:worlds|get_server_status": {
+    "title": "查询 Minecraft 服务器状态",
+    "description": "按地址发送状态查询，返回在线信息等；不会加入服务器或下载整合包。",
+    "effect": "network_read"
+  },
+  "plugin:worlds|get_singleplayer_world": {
+    "title": "读取一个单人世界",
+    "description": "按游戏内部 ID 和 saves 下的文件夹名读取该世界元数据。",
+    "effect": "read"
+  },
+  "plugin:worlds|remove_server_from_instance": {
+    "title": "移除多人服务器条目",
+    "description": "按列表索引从 servers.dat 移除服务器条目；不会删除远程服务器。",
+    "effect": "delete"
+  },
+  "plugin:worlds|rename_world": {
+    "title": "修改世界显示名称",
+    "description": "修改世界元数据中的显示名称，不应把 newName 当作更换世界文件夹路径。",
+    "effect": "write"
+  },
+  "plugin:worlds|reset_world_icon": {
+    "title": "重置世界图标",
+    "description": "删除或重置该世界自定义图标，让游戏重新生成；不删除世界数据。",
+    "effect": "write"
+  },
+  "plugin:worlds|set_world_display_status": {
+    "title": "设置世界显示状态",
+    "description": "将世界或服务器标为普通、隐藏或收藏；只影响启动器显示。",
+    "effect": "write"
+  },
+  "plugin:worlds|start_join_server": {
+    "title": "启动并加入服务器",
+    "description": "启动目标游戏并传入服务器地址，进入后尝试加入该服务器。",
+    "effect": "write"
+  },
+  "plugin:worlds|start_join_singleplayer_world": {
+    "title": "启动并进入单人世界",
+    "description": "启动目标游戏并传入指定单人世界，按版本支持情况进入世界。",
+    "effect": "write"
+  }
+}
