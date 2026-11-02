@@ -1,0 +1,123 @@
+import { createRouter, createWebHistory } from 'vue-router'
+/**
+ * Loads each page when its route is visited.
+ */
+export default new createRouter({
+	history: createWebHistory(),
+	routes: [
+		{
+			path: '/',
+			name: 'Home',
+			component: () => import('@/pages/Index.vue'),
+			meta: {
+				manualScroll: true,
+			},
+		},
+		{ path: '/hosting/:pathMatch(.*)*', redirect: '/' },
+		{
+			path: '/browse/:projectType',
+			name: 'Discover content',
+			component: () => import('@/pages/Browse.vue'),
+			meta: {
+				saveScroll: true,
+			},
+		},
+		{
+			path: '/curseforge/:id',
+			name: 'CurseForge',
+			component: () => import('@/pages/curseforge/Project.vue'),
+		},
+		{ path: '/skins', name: 'Skins', component: () => import('@/pages/Skins.vue') },
+		{ path: '/screenshots', redirect: '/' },
+		{ path: '/user/:user/:projectType?', redirect: '/' },
+		{
+			path: '/:projectType(mod|plugin|datapack|resourcepack|shader|modpack)/:id/:rest(.*)*',
+			redirect: (to) => {
+				const rest = to.params.rest ? `/${[].concat(to.params.rest).join('/')}` : ''
+				return `/project/${to.params.id}${rest}${to.hash}`
+			},
+		},
+		{
+			path: '/project/:id',
+			name: 'Project',
+			component: () => import('@/pages/project/Index.vue'),
+			props: true,
+			children: [
+				{
+					path: '',
+					name: 'Description',
+					component: () => import('@/pages/project/Description.vue'),
+				},
+				{
+					path: 'versions',
+					name: 'Versions',
+					component: () => import('@/pages/project/Versions.vue'),
+				},
+				{
+					path: 'version/:version',
+					name: 'Version',
+					component: () => import('@/pages/project/Version.vue'),
+					props: true,
+				},
+				{
+					path: 'gallery',
+					name: 'Gallery',
+					component: () => import('@/pages/project/Gallery.vue'),
+				},
+			],
+		},
+		{
+			path: '/instance/:id',
+			name: 'Instance',
+			component: () => import('@/pages/instance/layout.vue'),
+			children: [
+				{
+					path: 'worlds',
+					name: 'InstanceWorlds',
+					component: () => import('@/pages/instance/worlds/index.vue'),
+				},
+				{
+					path: 'share',
+					name: 'InstanceShare',
+					redirect: (to) => `/instance/${encodeURIComponent(to.params.id)}`,
+				},
+				{
+					path: '',
+					name: 'InstanceContent',
+					component: () => import('@/pages/instance/content/index.vue'),
+					meta: {
+						saveScroll: true,
+					},
+				},
+				{
+					path: 'projects/:type',
+					name: 'InstanceContentFilter',
+					component: () => import('@/pages/instance/content/index.vue'),
+					meta: {
+						saveScroll: true,
+					},
+				},
+				{
+					path: 'files',
+					name: 'InstanceFiles',
+					component: () => import('@/pages/instance/files/index.vue'),
+				},
+				{
+					path: 'screenshots',
+					name: 'InstanceScreenshots',
+					component: () => import('@/pages/instance/screenshots/index.vue'),
+				},
+				{
+					path: 'logs',
+					name: 'InstanceLogs',
+					component: () => import('@/pages/instance/logs/index.vue'),
+					meta: {
+						renderMode: 'fixed',
+					},
+				},
+			],
+		},
+	],
+	linkActiveClass: 'router-link-active',
+	linkExactActiveClass: 'router-link-exact-active',
+})
