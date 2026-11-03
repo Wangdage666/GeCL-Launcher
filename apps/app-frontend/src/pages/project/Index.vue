@@ -69,13 +69,11 @@
 					@category="(category) => router.push(`${projectSearchUrl}?f=categories:${category}`)"
 				>
 					<template #actions>
-						<Button v-if="data.project_type === 'mod'" native-type="button" :disabled="openingMcmod" @click="openMcmod">{{ openingMcmod ? '正在查找…' : 'MC 百科' }}</Button>
 						<template v-if="isServerProject">
 							<Button
 								v-if="serverPlaying"
 								type="colored"
 								color="red"
-								size="xl"
 								native-type="button"
 								@click="handleStopServer"
 							>
@@ -86,7 +84,6 @@
 								v-else
 								type="colored"
 								color="brand"
-								size="xl"
 								native-type="button"
 								:disabled="serverInstallLoading"
 								@click="handleClickPlay"
@@ -98,42 +95,21 @@
 										: formatMessage(commonMessages.playButton)
 								}}
 							</Button>
-							<IconButton
-								v-tooltip="formatMessage(commonMessages.addServerToInstanceButton)"
-								size="xl"
-								:label="formatMessage(commonMessages.addServerToInstanceButton)"
-								native-type="button"
-								@click="handleAddServerToInstance"
-							>
+							<Button native-type="button" @click="handleAddServerToInstance">
 								<PlusIcon />
-							</IconButton>
-							<TeleportOverflowMenu
-								type="quiet"
-								size="xl"
-								:label="formatMessage(messages.moreOptions)"
-								:options="serverProjectHeaderMoreActions"
-							>
-								<MoreVerticalIcon />
-							</TeleportOverflowMenu>
+								{{ formatMessage(commonMessages.addServerToInstanceButton) }}
+							</Button>
 						</template>
 						<template v-else>
 							<Button
 								v-if="showSwitchVersion && onVersionsPage"
 								v-tooltip="formatMessage(messages.alreadyInstalled)"
-								size="xl"
 								native-type="button"
 								disabled
 							>
-								<CheckIcon />
 								{{ formatMessage(commonMessages.installedLabel) }}
 							</Button>
-							<Button
-								v-else-if="showSwitchVersion"
-								size="xl"
-								native-type="button"
-								@click="goToVersions"
-							>
-								<SwapIcon />
+							<Button v-else-if="showSwitchVersion" native-type="button" @click="goToVersions">
 								{{ formatMessage(messages.switchVersion) }}
 							</Button>
 							<Button
@@ -143,12 +119,10 @@
 								"
 								type="colored"
 								color="brand"
-								size="xl"
 								native-type="button"
 								:disabled="installButtonDisabled"
 								@click="install(null)"
 							>
-								<component :is="installButtonIcon" :class="installButtonIconClass" />
 								{{
 									installButtonInstalled
 										? formatMessage(commonMessages.installedLabel)
@@ -158,20 +132,26 @@
 												? formatMessage(commonMessages.installingLabel)
 												: serverProjectSelected
 													? formatMessage(commonMessages.selectedLabel)
-													: formatMessage(commonMessages.installButton)
+													: instance
+														? '安装'
+														: '添加到游戏版本'
 								}}
 							</Button>
-							<TeleportOverflowMenu
-								type="quiet"
-								size="xl"
-								:label="formatMessage(messages.moreOptions)"
-								:options="projectHeaderMoreActions"
-							>
-								<MoreVerticalIcon />
-							</TeleportOverflowMenu>
+							<Button
+								v-if="data.project_type === 'mod'"
+								aria-label="MC 百科"
+								native-type="button"
+								:loading="openingMcmod"
+								@click="openMcmod"
+								>{{ openingMcmod ? '查找中…' : 'MC 百科' }} <ExternalIcon
+							/></Button>
 						</template>
+						<Button native-type="button" @click="openProjectInBrowser"
+							>官网 <ExternalIcon
+						/></Button>
 					</template>
 				</ProjectPageHeader>
+				<p v-if="mcmodError" role="alert" class="m-0 text-red">{{ mcmodError }}</p>
 				<NavTabs
 					:links="[
 						{
@@ -238,18 +218,12 @@
 <script setup>
 import { cachedMcmodEntry, mcmodUrl, resolveMcmod } from '@/features/mcmod'
 import {
-	BookmarkIcon,
-	CheckIcon,
 	ClipboardCopyIcon,
 	DownloadIcon,
 	ExternalIcon,
 	GlobeIcon,
-	HeartIcon,
-	MoreVerticalIcon,
 	PlayIcon,
 	PlusIcon,
-	ReportIcon,
-	SpinnerIcon,
 	StopCircleIcon,
 } from '@modrinth/assets'
 import {
@@ -260,7 +234,6 @@ import {
 	CreationFlowModal,
 	defineMessages,
 	getTargetInstallPreferences,
-	IconButton,
 	injectNotificationManager,
 	NavTabs,
 	ProjectBackgroundGradient,
@@ -273,7 +246,6 @@ import {
 	ProjectSidebarTags,
 	requestInstall,
 	SelectedProjectsFloatingBar,
-	TeleportOverflowMenu,
 	useVIntl,
 } from '@modrinth/ui'
 import { useQueryClient } from '@tanstack/vue-query'
@@ -283,7 +255,6 @@ import relativeTime from 'dayjs/plugin/relativeTime'
 import { computed, ref, shallowRef, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-import { SwapIcon } from '@/assets/icons/index.js'
 import InstanceIndicator from '@/components/ui/InstanceIndicator.vue'
 import {
 	fetchCachedServerStatus,
@@ -579,66 +550,6 @@ const installButtonDisabled = computed(
 const serverInstallLoading = computed(
 	() => !!data.value && installingServerProjects.value.includes(data.value.id),
 )
-const installButtonIcon = computed(() => {
-	if (installButtonLoading.value && !installButtonInstalled.value) return SpinnerIcon
-	if (!installButtonInstalled.value && !serverProjectSelected.value) return DownloadIcon
-	return CheckIcon
-})
-const installButtonIconClass = computed(() =>
-	installButtonLoading.value && !installButtonInstalled.value ? 'animate-spin' : undefined,
-)
-const serverProjectHeaderMoreActions = computed(() => [
-	{
-		id: 'open-in-browser',
-		label: formatMessage(commonMessages.openInModrinthButton),
-		icon: ExternalIcon,
-		action: openProjectInBrowser,
-	},
-	{
-		type: 'divider',
-	},
-	{
-		id: 'report',
-		label: formatMessage(commonMessages.reportButton),
-		icon: ReportIcon,
-		tone: 'red',
-		action: reportProject,
-	},
-])
-const projectHeaderMoreActions = computed(() => [
-	{
-		id: 'follow',
-		label: formatMessage(commonMessages.followButton),
-		icon: HeartIcon,
-		disabled: true,
-		tooltip: formatMessage(messages.comingSoon),
-		action: () => {},
-	},
-	{
-		id: 'save',
-		label: formatMessage(commonMessages.saveButton),
-		icon: BookmarkIcon,
-		disabled: true,
-		tooltip: formatMessage(messages.comingSoon),
-		action: () => {},
-	},
-	{
-		id: 'open-in-browser',
-		label: formatMessage(commonMessages.openInModrinthButton),
-		icon: ExternalIcon,
-		action: openProjectInBrowser,
-	},
-	{
-		type: 'divider',
-	},
-	{
-		id: 'report',
-		label: formatMessage(commonMessages.reportButton),
-		icon: ReportIcon,
-		tone: 'red',
-		action: reportProject,
-	},
-])
 const projectSearchUrl = computed(
 	() => `/browse/${isServerProject.value ? 'server' : data.value?.project_type}`,
 )
@@ -691,11 +602,6 @@ function openProjectInBrowser() {
 	if (!data.value) return
 	const type = isServerProject.value ? 'project' : data.value.project_type
 	void openUrl(`https://modrinth.com/${type}/${data.value.slug}`)
-}
-
-function reportProject() {
-	if (!data.value) return
-	void openUrl(`https://modrinth.com/report?item=project&itemID=${data.value.id}`)
 }
 
 async function fetchProjectData() {
@@ -949,11 +855,15 @@ const handleRightClick = (event) => {
 const getProjectLink = (project) => `https://modrinth.com/${project.project_type}/${project.slug}`
 const mcmodEntry = ref(/** @type {import('@/features/mcmod').McmodEntry | null} */ (null))
 const openingMcmod = ref(false)
+const mcmodError = ref('')
+let mcmodController = new AbortController()
 watch(() => data.value?.id, async (_id, _previous, onCleanup) => {
 	const project = data.value
 	mcmodEntry.value = null
+	mcmodError.value = ''
 	if (!project || project.project_type !== 'mod') return
 	const controller = new AbortController()
+	mcmodController = controller
 	onCleanup(() => controller.abort())
 	mcmodEntry.value = cachedMcmodEntry(project)
 	const entry = await resolveMcmod(project, controller.signal)
@@ -962,12 +872,25 @@ watch(() => data.value?.id, async (_id, _previous, onCleanup) => {
 async function openMcmod() {
 	const project = data.value
 	if (!project || openingMcmod.value) return
+	const signal = mcmodController.signal
 	openingMcmod.value = true
+	mcmodError.value = ''
 	try {
-		const entry = mcmodEntry.value ?? await resolveMcmod(project)
+		const entry =
+			mcmodEntry.value ??
+			(await resolveMcmod(project, signal, { retryMissing: true, throwOnError: true }))
+		if (signal.aborted || data.value?.id !== project.id) return
+		if (!entry) {
+			mcmodError.value = '未找到对应的 MC 百科条目'
+			return
+		}
+		mcmodEntry.value = entry
 		await openUrl(mcmodUrl(entry, project.title))
-	} catch (error) { handleError(error) }
-	finally { openingMcmod.value = false }
+	} catch (error) {
+		if (!signal.aborted) mcmodError.value = error?.message ?? String(error)
+	} finally {
+		openingMcmod.value = false
+	}
 }
 const openProjectLink = (project) => openUrl(getProjectLink(project))
 const copyProjectLink = (project) => navigator.clipboard.writeText(getProjectLink(project))

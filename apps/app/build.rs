@@ -39,6 +39,10 @@ fn main() {
                         "curseforge_description",
                         "curseforge_install",
                         "curseforge_cancel",
+                        "update_check",
+                        "update_download",
+                        "update_cancel",
+                        "update_install",
                     ])
                     .default_permission(
                         DefaultPermissionRule::AllowAllCommands,

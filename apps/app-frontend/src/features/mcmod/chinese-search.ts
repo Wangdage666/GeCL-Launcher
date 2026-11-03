@@ -1,4 +1,4 @@
-import { publicHtml } from './index'
+import { learnedMcmodClass, learnMcmod, publicHtml } from './index'
 import { linkedEntry, searchCandidates, type LinkedMcmodEntry } from './parser'
 
 const storageKey = 'gecl-chinese-mod-search-v2'
@@ -37,18 +37,28 @@ export async function findChineseMods(
 	const url = new URL('https://search.mcmod.cn/s')
 	url.searchParams.set('key', query)
 	url.searchParams.set('mold', '1')
-	const candidates = searchCandidates(await publicHtml(url.toString(), signal), query, 8)
+	const candidates = searchCandidates(await publicHtml(url.toString(), signal, 'foreground'), query, 6)
 	const entries: (LinkedMcmodEntry | null)[] = Array(candidates.length).fill(null)
 	let next = 0
 	let failures = 0
 	async function worker() {
 		while (next < candidates.length && !signal.aborted) {
 			const index = next++
+			const known = learnedMcmodClass(candidates[index])
+			if (known) {
+				entries[index] = known
+				continue
+			}
 			try {
 				entries[index] = linkedEntry(
-					await publicHtml(`https://www.mcmod.cn/class/${candidates[index]}.html`, signal),
+					await publicHtml(
+						`https://www.mcmod.cn/class/${candidates[index]}.html`,
+						signal,
+						'foreground',
+					),
 					candidates[index],
 				)
+				if (entries[index]) learnMcmod(entries[index]!)
 			} catch (error) {
 				if (signal.aborted) throw error
 				failures++

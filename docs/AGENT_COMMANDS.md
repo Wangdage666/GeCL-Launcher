@@ -313,7 +313,7 @@ Start-Process .\gecl.exe -WindowStyle Hidden
 
 ## 全部接口逐条说明
 
-本表按当前源码注册表整理，共 **296 条应用接口**。接口注册与实际可用性分开说明；没有把上游平台功能当作已经开放的 GeCL 本地功能。
+本表按当前源码注册表整理，共 **300 条应用接口**。接口注册与实际可用性分开说明；没有把上游平台功能当作已经开放的 GeCL 本地功能。
 
 每条都列出用途、参数意义、结果、数据影响及调用模板。外层参数是 camelCase；嵌套对象必须遵守自己的字段格式。尖括号内容均为需要替换的占位值，不是能直接照抄执行的真实 ID。无参数接口传 `{}`。
 
@@ -322,7 +322,7 @@ Start-Process .\gecl.exe -WindowStyle Hidden
 - [Modrinth 查询与缓存（18 条）](#api-cache)
 - [游戏文件与系统保存对话框（12 条）](#api-files)
 - [上游好友兼容接口（4 条）](#api-friends)
-- [GeCL 专用功能与 CurseForge（26 条）](#api-gecl)
+- [GeCL 专用功能与 CurseForge（30 条）](#api-gecl)
 - [其他启动器目录识别（3 条）](#api-import)
 - [安装任务与整合包（21 条）](#api-install)
 - [游戏、内容、分组、截图与同步（97 条）](#api-instance)
@@ -2029,6 +2029,10 @@ bytes 是 0–255 的字节数组。createOnly=true 表示只能新建；false �
 | [`pack_artwork`](#cmd-gecl-pack_artwork) | 预览本地整合包名称与图标 | 写入操作 |
 | [`preview_folder`](#cmd-gecl-preview_folder) | 扫描已有游戏版本 | 本地查询 |
 | [`setup_status`](#cmd-gecl-setup_status) | 查询首次设置缺项 | 本地查询 |
+| [`update_cancel`](#cmd-gecl-update_cancel) | 取消 GeCL 更新下载 | 写入操作 |
+| [`update_check`](#cmd-gecl-update_check) | 检查 GeCL 新版本 | 查询／缓存 |
+| [`update_download`](#cmd-gecl-update_download) | 下载 GeCL 更新安装包 | 联网写入 |
+| [`update_install`](#cmd-gecl-update_install) | 安装 GeCL 更新并重启 | 写入操作 |
 | [`world_backup`](#cmd-gecl-world_backup) | 备份或恢复一个世界 | 写入操作 |
 | [`world_backup_directory`](#cmd-gecl-world_backup_directory) | 读取上次备份位置 | 本地查询 |
 
@@ -2060,7 +2064,7 @@ bytes 是 0–255 的字节数组。createOnly=true 表示只能新建；false �
 .\gecl-agent.exe invoke 'plugin:gecl|appearance_discard_background' '@args.json'
 ```
 
-源码位置：`apps/app/src/api/gecl.rs:125`（相对源码根目录）。
+源码位置：`apps/app/src/api/gecl.rs:129`（相对源码根目录）。
 
 <a id="cmd-gecl-appearance_get"></a>
 
@@ -2080,7 +2084,7 @@ bytes 是 0–255 的字节数组。createOnly=true 表示只能新建；false �
 .\gecl-agent.exe invoke 'plugin:gecl|appearance_get' '{}'
 ```
 
-源码位置：`apps/app/src/api/gecl.rs:95`（相对源码根目录）。
+源码位置：`apps/app/src/api/gecl.rs:99`（相对源码根目录）。
 
 <a id="cmd-gecl-appearance_import_background"></a>
 
@@ -2110,7 +2114,7 @@ bytes 是 0–255 的字节数组。createOnly=true 表示只能新建；false �
 .\gecl-agent.exe invoke 'plugin:gecl|appearance_import_background' '@args.json'
 ```
 
-源码位置：`apps/app/src/api/gecl.rs:115`（相对源码根目录）。
+源码位置：`apps/app/src/api/gecl.rs:119`（相对源码根目录）。
 
 <a id="cmd-gecl-appearance_set"></a>
 
@@ -2150,7 +2154,7 @@ bytes 是 0–255 的字节数组。createOnly=true 表示只能新建；false �
 .\gecl-agent.exe invoke 'plugin:gecl|appearance_set' '@args.json'
 ```
 
-源码位置：`apps/app/src/api/gecl.rs:104`（相对源码根目录）。
+源码位置：`apps/app/src/api/gecl.rs:108`（相对源码根目录）。
 
 <a id="cmd-gecl-cache_artwork"></a>
 
@@ -2180,7 +2184,7 @@ bytes 是 0–255 的字节数组。createOnly=true 表示只能新建；false �
 .\gecl-agent.exe invoke 'plugin:gecl|cache_artwork' '@args.json'
 ```
 
-源码位置：`apps/app/src/api/gecl.rs:54`（相对源码根目录）。
+源码位置：`apps/app/src/api/gecl.rs:58`（相对源码根目录）。
 
 <a id="cmd-gecl-cancel_import"></a>
 
@@ -2210,7 +2214,7 @@ bytes 是 0–255 的字节数组。createOnly=true 表示只能新建；false �
 .\gecl-agent.exe invoke 'plugin:gecl|cancel_import' '@args.json'
 ```
 
-源码位置：`apps/app/src/api/gecl.rs:215`（相对源码根目录）。
+源码位置：`apps/app/src/api/gecl.rs:219`（相对源码根目录）。
 
 <a id="cmd-gecl-cancel_world_backup"></a>
 
@@ -2240,7 +2244,7 @@ bytes 是 0–255 的字节数组。createOnly=true 表示只能新建；false �
 .\gecl-agent.exe invoke 'plugin:gecl|cancel_world_backup' '@args.json'
 ```
 
-源码位置：`apps/app/src/api/gecl.rs:81`（相对源码根目录）。
+源码位置：`apps/app/src/api/gecl.rs:85`（相对源码根目录）。
 
 <a id="cmd-gecl-choose_directory"></a>
 
@@ -2270,7 +2274,7 @@ bytes 是 0–255 的字节数组。createOnly=true 表示只能新建；false �
 .\gecl-agent.exe invoke 'plugin:gecl|choose_directory' '@args.json'
 ```
 
-源码位置：`apps/app/src/api/gecl.rs:147`（相对源码根目录）。
+源码位置：`apps/app/src/api/gecl.rs:151`（相对源码根目录）。
 
 <a id="cmd-gecl-curseforge_cancel"></a>
 
@@ -2300,7 +2304,7 @@ bytes 是 0–255 的字节数组。createOnly=true 表示只能新建；false �
 .\gecl-agent.exe invoke 'plugin:gecl|curseforge_cancel' '@args.json'
 ```
 
-源码位置：`apps/app/src/api/gecl.rs:286`（相对源码根目录）。
+源码位置：`apps/app/src/api/gecl.rs:290`（相对源码根目录）。
 
 <a id="cmd-gecl-curseforge_changelog"></a>
 
@@ -2332,7 +2336,7 @@ id 为 CF 项目数字 ID，fileId 为该项目的文件数字 ID；返回更新
 .\gecl-agent.exe invoke 'plugin:gecl|curseforge_changelog' '@args.json'
 ```
 
-源码位置：`apps/app/src/api/gecl.rs:253`（相对源码根目录）。
+源码位置：`apps/app/src/api/gecl.rs:257`（相对源码根目录）。
 
 <a id="cmd-gecl-curseforge_description"></a>
 
@@ -2362,7 +2366,7 @@ id 为 CF 项目数字 ID，fileId 为该项目的文件数字 ID；返回更新
 .\gecl-agent.exe invoke 'plugin:gecl|curseforge_description' '@args.json'
 ```
 
-源码位置：`apps/app/src/api/gecl.rs:242`（相对源码根目录）。
+源码位置：`apps/app/src/api/gecl.rs:246`（相对源码根目录）。
 
 <a id="cmd-gecl-curseforge_file"></a>
 
@@ -2394,7 +2398,7 @@ id 为 CF 项目数字 ID，fileId 为该项目的文件数字 ID；返回更新
 .\gecl-agent.exe invoke 'plugin:gecl|curseforge_file' '@args.json'
 ```
 
-源码位置：`apps/app/src/api/gecl.rs:246`（相对源码根目录）。
+源码位置：`apps/app/src/api/gecl.rs:250`（相对源码根目录）。
 
 <a id="cmd-gecl-curseforge_files"></a>
 
@@ -2432,7 +2436,7 @@ id 为 CF 项目数字 ID，fileId 为该项目的文件数字 ID；返回更新
 .\gecl-agent.exe invoke 'plugin:gecl|curseforge_files' '@args.json'
 ```
 
-源码位置：`apps/app/src/api/gecl.rs:235`（相对源码根目录）。
+源码位置：`apps/app/src/api/gecl.rs:239`（相对源码根目录）。
 
 <a id="cmd-gecl-curseforge_install"></a>
 
@@ -2470,7 +2474,7 @@ id 为 CF 项目数字 ID，fileId 为该项目的文件数字 ID；返回更新
 .\gecl-agent.exe invoke 'plugin:gecl|curseforge_install' '@args.json'
 ```
 
-源码位置：`apps/app/src/api/gecl.rs:257`（相对源码根目录）。
+源码位置：`apps/app/src/api/gecl.rs:261`（相对源码根目录）。
 
 <a id="cmd-gecl-curseforge_installed"></a>
 
@@ -2490,7 +2494,7 @@ id 为 CF 项目数字 ID，fileId 为该项目的文件数字 ID；返回更新
 .\gecl-agent.exe invoke 'plugin:gecl|curseforge_installed' '{}'
 ```
 
-源码位置：`apps/app/src/api/gecl.rs:291`（相对源码根目录）。
+源码位置：`apps/app/src/api/gecl.rs:295`（相对源码根目录）。
 
 <a id="cmd-gecl-curseforge_project"></a>
 
@@ -2520,7 +2524,7 @@ id 为 CF 项目数字 ID，fileId 为该项目的文件数字 ID；返回更新
 .\gecl-agent.exe invoke 'plugin:gecl|curseforge_project' '@args.json'
 ```
 
-源码位置：`apps/app/src/api/gecl.rs:231`（相对源码根目录）。
+源码位置：`apps/app/src/api/gecl.rs:235`（相对源码根目录）。
 
 <a id="cmd-gecl-curseforge_search"></a>
 
@@ -2556,7 +2560,7 @@ request 支持关键词、MC 版本、加载器、分类和分页；返回项目
 .\gecl-agent.exe invoke 'plugin:gecl|curseforge_search' '@args.json'
 ```
 
-源码位置：`apps/app/src/api/gecl.rs:225`（相对源码根目录）。
+源码位置：`apps/app/src/api/gecl.rs:229`（相对源码根目录）。
 
 <a id="cmd-gecl-dismiss_launch"></a>
 
@@ -2586,7 +2590,7 @@ request 支持关键词、MC 版本、加载器、分类和分页；返回项目
 .\gecl-agent.exe invoke 'plugin:gecl|dismiss_launch' '@args.json'
 ```
 
-源码位置：`apps/app/src/api/gecl.rs:135`（相对源码根目录）。
+源码位置：`apps/app/src/api/gecl.rs:139`（相对源码根目录）。
 
 <a id="cmd-gecl-finish_setup"></a>
 
@@ -2606,7 +2610,7 @@ request 支持关键词、MC 版本、加载器、分类和分页；返回项目
 .\gecl-agent.exe invoke 'plugin:gecl|finish_setup' '{}'
 ```
 
-源码位置：`apps/app/src/api/gecl.rs:155`（相对源码根目录）。
+源码位置：`apps/app/src/api/gecl.rs:159`（相对源码根目录）。
 
 <a id="cmd-gecl-import_folder"></a>
 
@@ -2642,7 +2646,7 @@ source 是原游戏来源，versionFile 是 preview_folder 返回的版本描述
 .\gecl-agent.exe invoke 'plugin:gecl|import_folder' '@args.json'
 ```
 
-源码位置：`apps/app/src/api/gecl.rs:167`（相对源码根目录）。
+源码位置：`apps/app/src/api/gecl.rs:171`（相对源码根目录）。
 
 <a id="cmd-gecl-launch_progress"></a>
 
@@ -2662,7 +2666,7 @@ source 是原游戏来源，versionFile 是 preview_folder 返回的版本描述
 .\gecl-agent.exe invoke 'plugin:gecl|launch_progress' '{}'
 ```
 
-源码位置：`apps/app/src/api/gecl.rs:130`（相对源码根目录）。
+源码位置：`apps/app/src/api/gecl.rs:134`（相对源码根目录）。
 
 <a id="cmd-gecl-pack_artwork"></a>
 
@@ -2692,7 +2696,7 @@ source 是原游戏来源，versionFile 是 preview_folder 返回的版本描述
 .\gecl-agent.exe invoke 'plugin:gecl|pack_artwork' '@args.json'
 ```
 
-源码位置：`apps/app/src/api/gecl.rs:46`（相对源码根目录）。
+源码位置：`apps/app/src/api/gecl.rs:50`（相对源码根目录）。
 
 <a id="cmd-gecl-preview_folder"></a>
 
@@ -2722,7 +2726,7 @@ source 是原游戏来源，versionFile 是 preview_folder 返回的版本描述
 .\gecl-agent.exe invoke 'plugin:gecl|preview_folder' '@args.json'
 ```
 
-源码位置：`apps/app/src/api/gecl.rs:160`（相对源码根目录）。
+源码位置：`apps/app/src/api/gecl.rs:164`（相对源码根目录）。
 
 <a id="cmd-gecl-setup_status"></a>
 
@@ -2742,7 +2746,97 @@ source 是原游戏来源，versionFile 是 preview_folder 返回的版本描述
 .\gecl-agent.exe invoke 'plugin:gecl|setup_status' '{}'
 ```
 
-源码位置：`apps/app/src/api/gecl.rs:140`（相对源码根目录）。
+源码位置：`apps/app/src/api/gecl.rs:144`（相对源码根目录）。
+
+<a id="cmd-gecl-update_cancel"></a>
+
+#### `plugin:gecl|update_cancel` — 取消 GeCL 更新下载
+
+请求停止正在进行的 update_download；已经完成校验的安装包不受影响。
+
+**影响与可用性：** 写入操作：会修改本地状态、文件，或按此接口用途发起安装／运行操作。
+
+**参数：** 无，传 `{}`。
+
+**返回：** 成功时 result 为 null；失败时返回统一 error。 Rust 返回类型：`Result<()>`。
+
+调用模板；把所有尖括号占位值替换为真实值。复杂对象应按来源查询结果或类型声明填写，模板不是已验证可执行的测试数据。
+
+```powershell
+.\gecl-agent.exe invoke 'plugin:gecl|update_cancel' '{}'
+```
+
+源码位置：`apps/app/src/api/gecl.rs:342`（相对源码根目录）。
+
+<a id="cmd-gecl-update_check"></a>
+
+#### `plugin:gecl|update_check` — 检查 GeCL 新版本
+
+查询 GitHub 上 Wangdage666/GeCL-Launcher 的最新正式发布，比较版本号；有更新版本时返回版本、说明、安装包名称、大小与 SHA-256，没有则返回 null。仅读取，不下载。
+
+**影响与可用性：** 查询／缓存：可能联网并写入缓存，不主动安装、更新或发布游戏内容。
+
+**参数：** 无，传 `{}`。
+
+**返回：** 序列化的 app_update::UpdateInfo 数据；字段定义可在 AGENT_TYPES.json 按类型名称查找。 找不到或没有对应结果时为 null。 Rust 返回类型：`Result<Option<app_update::UpdateInfo>>`。
+
+调用模板；把所有尖括号占位值替换为真实值。复杂对象应按来源查询结果或类型声明填写，模板不是已验证可执行的测试数据。
+
+```powershell
+.\gecl-agent.exe invoke 'plugin:gecl|update_check' '{}'
+```
+
+源码位置：`apps/app/src/api/gecl.rs:316`（相对源码根目录）。
+
+<a id="cmd-gecl-update_download"></a>
+
+#### `plugin:gecl|update_download` — 下载 GeCL 更新安装包
+
+下载最近一次 update_check 返回的安装包到系统临时目录 gecl-update，按发布信息核对大小与 SHA-256，失败时删除临时文件；onProgress 通道报告字节进度。不接受外部传入的地址。
+
+**影响与可用性：** 联网写入：会提交网络请求并修改账户或本地状态，按本条用途及授权条件使用。
+
+| 参数 | 必填 | 类型／取值 | 具体含义 |
+|---|---|---|---|
+| `onProgress` | 是 | tauri::ipc::Channel<app_update::Progress> | 进度通道，传字面量 "$channel"，事件收集在 CLI 返回的 events 数组中。 |
+
+**返回：** 成功时 result 为 null；失败时返回统一 error。 Rust 返回类型：`Result<()>`。
+
+调用模板；把所有尖括号占位值替换为真实值。复杂对象应按来源查询结果或类型声明填写，模板不是已验证可执行的测试数据。
+
+把下列 JSON 保存为 UTF-8 的 `args.json`（替换占位值后调用）：
+
+```json
+{
+  "onProgress": "$channel"
+}
+```
+
+```powershell
+.\gecl-agent.exe invoke 'plugin:gecl|update_download' '@args.json'
+```
+
+源码位置：`apps/app/src/api/gecl.rs:325`（相对源码根目录）。
+
+<a id="cmd-gecl-update_install"></a>
+
+#### `plugin:gecl|update_install` — 安装 GeCL 更新并重启
+
+再次校验已下载安装包的 SHA-256 后，以被动模式（/P /UPDATE /R）启动安装程序并退出 GeCL，安装完成后自动重新打开。需要 Windows 管理员授权；会结束当前界面和命令接口会话。
+
+**影响与可用性：** 写入操作：会修改本地状态、文件，或按此接口用途发起安装／运行操作。
+
+**参数：** 无，传 `{}`。
+
+**返回：** 成功时 result 为 null；失败时返回统一 error。 Rust 返回类型：`Result<()>`。
+
+调用模板；把所有尖括号占位值替换为真实值。复杂对象应按来源查询结果或类型声明填写，模板不是已验证可执行的测试数据。
+
+```powershell
+.\gecl-agent.exe invoke 'plugin:gecl|update_install' '{}'
+```
+
+源码位置：`apps/app/src/api/gecl.rs:349`（相对源码根目录）。
 
 <a id="cmd-gecl-world_backup"></a>
 
@@ -2782,7 +2876,7 @@ restore=false 将世界写成 archive ZIP；true 从 ZIP 恢复并覆盖现存�
 .\gecl-agent.exe invoke 'plugin:gecl|world_backup' '@args.json'
 ```
 
-源码位置：`apps/app/src/api/gecl.rs:67`（相对源码根目录）。
+源码位置：`apps/app/src/api/gecl.rs:71`（相对源码根目录）。
 
 <a id="cmd-gecl-world_backup_directory"></a>
 
@@ -2802,7 +2896,7 @@ restore=false 将世界写成 archive ZIP；true 从 ZIP 恢复并覆盖现存�
 .\gecl-agent.exe invoke 'plugin:gecl|world_backup_directory' '{}'
 ```
 
-源码位置：`apps/app/src/api/gecl.rs:64`（相对源码根目录）。
+源码位置：`apps/app/src/api/gecl.rs:68`（相对源码根目录）。
 
 <a id="api-import"></a>
 

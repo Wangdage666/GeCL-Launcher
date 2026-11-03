@@ -36,37 +36,12 @@
 									: formatMessage(commonMessages.installButton)
 					}}
 				</Button>
-				<TeleportOverflowMenu
-					type="outlined"
-					label="更多选项"
-					:tooltip="formatMessage(commonMessages.moreOptionsButton)"
-					:options="[
-						{
-							id: 'open-in-browser',
-							label: formatMessage(commonMessages.openInBrowserButton),
-							type: 'link',
-							href: `https://modrinth.com/${project.project_type}/${project.slug}/version/${version.id}`,
-							target: '_blank',
-						},
-						{
-							id: 'report',
-							label: formatMessage(commonMessages.reportButton),
-							type: 'link',
-							tone: 'red',
-							href: `https://modrinth.com/report?item=version&itemID=${version.id}`,
-							target: '_blank',
-						},
-					]"
+				<ButtonLink
+					:href="`https://modrinth.com/${project.project_type}/${project.slug}/version/${version.id}`"
+					target="_blank"
 				>
-					<MoreVerticalIcon aria-hidden="true" />
-					<template #open-in-browser>
-						<ExternalIcon aria-hidden="true" />
-						{{ formatMessage(commonMessages.openInBrowserButton) }}
-					</template>
-					<template #report>
-						<ReportIcon aria-hidden="true" /> {{ formatMessage(commonMessages.reportButton) }}
-					</template>
-				</TeleportOverflowMenu>
+					官网 <ExternalIcon aria-hidden="true" />
+				</ButtonLink>
 			</template>
 			<template #supplementaryResourceActions="{ file }">
 				<ButtonLink :href="file.url" :download="file.filename" target="_blank">
@@ -84,11 +59,9 @@ import {
 	CheckIcon,
 	DownloadIcon,
 	ExternalIcon,
-	MoreVerticalIcon,
-	ReportIcon,
 	VersionIcon,
 } from '@modrinth/assets'
-import { BackToParentLink, Button, ButtonLink, TeleportOverflowMenu } from '@modrinth/ui'
+import { BackToParentLink, Button, ButtonLink } from '@modrinth/ui'
 import {
 	commonMessages,
 	defineMessages,

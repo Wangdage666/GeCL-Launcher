@@ -69,6 +69,8 @@ Var UpdateMode
 Var NoShortcutMode
 Var WixMode
 Var OldMainBinaryName
+Var GeclUpgrade
+Var GeclInstalledVersion
 
 Name "${PRODUCTNAME}"
 BrandingText " "
@@ -166,6 +168,10 @@ SetFont "Microsoft YaHei UI" 9
 Var ReinstallPageCheck
 Page custom PageReinstall PageLeaveReinstall
 Function PageReinstall
+  ; Upgrading from an older gecl installs over it, keeping data; the directory page says "更新".
+  ${If} $GeclUpgrade = 1
+    Abort
+  ${EndIf}
   ; Uninstall previous WiX installation if exists.
   ;
   ; A WiX installer stores the installation info in registry
@@ -489,6 +495,15 @@ Function .onInit
     !endif
 
     Call RestorePreviousInstallLocation
+  ${EndIf}
+
+  ReadRegStr $GeclInstalledVersion SHCTX "${UNINSTKEY}" "DisplayVersion"
+  ReadRegStr $0 SHCTX "${UNINSTKEY}" "UninstallString"
+  ${If} $GeclInstalledVersion != ""
+  ${AndIf} $0 != ""
+    nsis_tauri_utils::SemverCompare "${VERSION}" $GeclInstalledVersion
+    Pop $0
+    ${IfThen} $0 = 1 ${|} StrCpy $GeclUpgrade 1 ${|}
   ${EndIf}
 
 

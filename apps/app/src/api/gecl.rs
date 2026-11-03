@@ -37,7 +37,11 @@ pub fn init<R: tauri::Runtime>() -> tauri::plugin::TauriPlugin<R> {
             curseforge_changelog,
             curseforge_description,
             curseforge_install,
-            curseforge_cancel
+            curseforge_cancel,
+            update_check,
+            update_download,
+            update_cancel,
+            update_install
         ])
         .build()
 }
@@ -291,4 +295,82 @@ async fn curseforge_cancel(job_id: uuid::Uuid) {
 async fn curseforge_installed()
 -> Result<std::collections::HashMap<String, Vec<u64>>> {
     Ok(theseus::curseforge::installed_projects().await?)
+}
+
+use theseus::gecl::app_update;
+
+#[derive(Default)]
+struct UpdateState {
+    latest: Option<app_update::UpdateInfo>,
+    downloaded: Option<(PathBuf, String)>,
+    cancelled: Option<Arc<AtomicBool>>,
+}
+
+static UPDATE: LazyLock<Mutex<UpdateState>> = LazyLock::new(Mutex::default);
+
+fn update_state() -> Result<std::sync::MutexGuard<'static, UpdateState>> {
+    Ok(UPDATE.lock().map_err(|_| anyhow::anyhow!("更新状态不可用"))?)
+}
+
+#[tauri::command]
+async fn update_check<R: tauri::Runtime>(app: tauri::AppHandle<R>) -> Result<Option<app_update::UpdateInfo>> {
+    let info = app_update::check(&app.package_info().version.to_string()).await?;
+    let mut state = update_state()?;
+    if state.latest != info { state.downloaded = None; }
+    state.latest = info.clone();
+    Ok(info)
+}
+
+#[tauri::command]
+async fn update_download(on_progress: tauri::ipc::Channel<app_update::Progress>) -> Result<()> {
+    let cancelled = Arc::new(AtomicBool::new(false));
+    let info = {
+        let mut state = update_state()?;
+        if state.cancelled.is_some() { return Err(anyhow::anyhow!("更新正在下载").into()); }
+        let info = state.latest.clone().ok_or_else(|| anyhow::anyhow!("没有可用的更新"))?;
+        state.cancelled = Some(cancelled.clone());
+        info
+    };
+    let result = app_update::download(&info, &cancelled, |progress| { let _ = on_progress.send(progress); }).await;
+    let mut state = update_state()?;
+    state.cancelled = None;
+    state.downloaded = Some((result?, info.sha256));
+    Ok(())
+}
+
+#[tauri::command]
+fn update_cancel() -> Result<()> {
+    if let Some(cancelled) = &update_state()?.cancelled { cancelled.store(true, Ordering::Relaxed); }
+    Ok(())
+}
+
+/// Runs the verified installer passively with `/UPDATE /R`; it relaunches gecl after replacing the files.
+#[tauri::command]
+async fn update_install<R: tauri::Runtime>(app: tauri::AppHandle<R>) -> Result<()> {
+    let (path, sha256) = update_state()?.downloaded.clone().ok_or_else(|| anyhow::anyhow!("安装包尚未下载"))?;
+    if app_update::file_sha256(&path).await? != sha256 {
+        update_state()?.downloaded = None;
+        return Err(anyhow::anyhow!("安装包校验失败，请重新下载").into());
+    }
+    launch_installer(&path)?;
+    app.exit(0);
+    Ok(())
+}
+
+#[cfg(windows)]
+fn launch_installer(path: &std::path::Path) -> Result<()> {
+    use windows::Win32::UI::Shell::ShellExecuteW;
+    use windows::Win32::UI::WindowsAndMessaging::SW_SHOWNORMAL;
+    use windows::core::{HSTRING, w};
+    let file = HSTRING::from(path.as_os_str());
+    let result = unsafe { ShellExecuteW(None, w!("open"), &file, w!("/P /UPDATE /R"), None, SW_SHOWNORMAL) };
+    if result.0 as isize <= 32 {
+        return Err(anyhow::anyhow!("没有启动安装程序（可能已取消管理员授权）").into());
+    }
+    Ok(())
+}
+
+#[cfg(not(windows))]
+fn launch_installer(_path: &std::path::Path) -> Result<()> {
+    Err(anyhow::anyhow!("当前系统不支持自动安装").into())
 }

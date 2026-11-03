@@ -21,6 +21,8 @@ GeCL 是一款 Windows 上的 Minecraft Java 版启动器，基于 [Modrinth App
 
 在 Releases 下载 `gecl_*_x64-setup.exe` 安装（需要管理员权限，默认安装到 `C:\Program Files (x86)\GeCL`），或直接运行 `gecl.exe`。需要 Microsoft Edge WebView2。首次启动选择游戏数据目录并添加账户。程序目前未签名。
 
+启动时会检查本仓库的最新 Release。有新版本时询问是否更新：确认后在应用内下载安装包并校验 SHA-256，然后以被动模式安装并自动重启（Windows 会请求一次管理员授权）。手动运行新版安装包时，若已安装旧版，安装页显示“更新”并保留设置与游戏数据。发布新版本时请同时上传安装包和 `build-gecl/SHA256SUMS.txt`：GitHub API 限流时，更新检查改用该文件中的校验值。
+
 ### 从源码构建
 
 需要 Node.js、pnpm、Rust（见 `rust-toolchain.toml`）、Visual Studio C++ Build Tools 与 Windows SDK。在仓库根目录运行：
@@ -67,6 +69,8 @@ GeCL is a Minecraft: Java Edition launcher for Windows, an independent derivativ
 ### Install and use
 
 Download `gecl_*_x64-setup.exe` from Releases (requires administrator rights; installs to `C:\Program Files (x86)\GeCL` by default), or run `gecl.exe` directly. Microsoft Edge WebView2 is required. On first launch, choose a game data folder and add an account. Binaries are currently unsigned.
+
+On startup GeCL checks this repository's latest Release. When a newer version exists it asks whether to update; if confirmed, the installer is downloaded inside the app, its SHA-256 is verified, and it runs in passive mode and restarts GeCL (Windows asks for administrator approval once). Running a newer installer manually over an older install shows "更新" (Update) and keeps settings and game data. When publishing a release, upload the installer together with `build-gecl/SHA256SUMS.txt`; if the GitHub API is rate limited, the update check uses the checksum from that file.
 
 ### Building from source
 

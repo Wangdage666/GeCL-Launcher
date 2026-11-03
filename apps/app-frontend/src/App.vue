@@ -1,4 +1,5 @@
 <script setup>
+import AppUpdate from '@/features/gecl/app-update.vue'
 import FirstRunSetup from '@/features/gecl/first-run-setup.vue'
 import FolderImport from '@/features/gecl/folder-import.vue'
 import LaunchProgress from '@/features/gecl/launch-progress.vue'
@@ -1492,6 +1493,7 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 	<Wallpaper v-if="stateInitialized" />
 	<FirstRunSetup v-if="stateInitialized" :required="firstRun" />
 	<LaunchProgress v-if="stateInitialized" />
+	<AppUpdate v-if="stateInitialized && !firstRun" />
 	<FolderImport
 		v-if="stateInitialized && folderImportVisible"
 		@close="folderImportVisible = false"

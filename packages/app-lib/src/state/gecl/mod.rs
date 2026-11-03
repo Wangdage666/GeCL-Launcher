@@ -1,6 +1,7 @@
 pub mod pack_artwork;
 pub mod world_backups;
 pub mod appearance;
+pub mod app_update;
 mod local_games;
 pub use local_games::{
     LocalGame, discover, finalize_import, import_folder, preview_folder,

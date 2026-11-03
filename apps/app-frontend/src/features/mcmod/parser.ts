@@ -114,23 +114,26 @@ export function linkedEntry(html: string, classId: number): LinkedMcmodEntry | n
 		curseforgeIds: [...curseforgeIds],
 	}
 }
+export function linkedToProject(entry: LinkedMcmodEntry, project: McmodProject): boolean {
+	return project.platform === 'curseforge'
+		? !!(
+				(project.slug && entry.curseforgeSlugs?.includes(project.slug.toLowerCase())) ||
+				(project.id && entry.curseforgeIds?.includes(project.id))
+			)
+		: [project.id, project.project_id, project.slug].some(
+				(id) => !!id && entry.identifiers.includes(id),
+			)
+}
 export function verifiedEntry(
-	html: string,
-	classId: number,
+	linked: LinkedMcmodEntry | null,
 	project: McmodProject,
 ): McmodEntry | null {
-	const entry = linkedEntry(html, classId)
-	if (
-		!entry ||
-		!(project.platform === 'curseforge'
-			? (project.slug && entry.curseforgeSlugs?.includes(project.slug.toLowerCase())) ||
-				(project.id && entry.curseforgeIds?.includes(project.id))
-			: [project.id, project.project_id, project.slug].some(
-					(id) => id && entry.identifiers.includes(id),
-				))
-	)
-		return null
-	return { classId, name: entry.name, originalName: entry.originalName || project.title }
+	if (!linked || !linkedToProject(linked, project)) return null
+	return {
+		classId: linked.classId,
+		name: linked.name,
+		originalName: linked.originalName || project.title,
+	}
 }
 export function displayModName(original: string, entry: McmodEntry | null): string {
 	if (!entry || !/\p{Script=Han}/u.test(entry.name) || entry.name === original) return original

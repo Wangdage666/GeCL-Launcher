@@ -354,6 +354,26 @@
     "description": "request 支持关键词、MC 版本、加载器、分类和分页；返回项目列表及分页信息，数字 ID 与 Modrinth ID 不通用。",
     "effect": "network_read"
   },
+  "plugin:gecl|update_cancel": {
+    "title": "取消 GeCL 更新下载",
+    "description": "请求停止正在进行的 update_download；已经完成校验的安装包不受影响。",
+    "effect": "write"
+  },
+  "plugin:gecl|update_check": {
+    "title": "检查 GeCL 新版本",
+    "description": "查询 GitHub 上 Wangdage666/GeCL-Launcher 的最新正式发布，比较版本号；有更新版本时返回版本、说明、安装包名称、大小与 SHA-256，没有则返回 null。仅读取，不下载。",
+    "effect": "network_read"
+  },
+  "plugin:gecl|update_download": {
+    "title": "下载 GeCL 更新安装包",
+    "description": "下载最近一次 update_check 返回的安装包到系统临时目录 gecl-update，按发布信息核对大小与 SHA-256，失败时删除临时文件；onProgress 通道报告字节进度。不接受外部传入的地址。",
+    "effect": "network_write"
+  },
+  "plugin:gecl|update_install": {
+    "title": "安装 GeCL 更新并重启",
+    "description": "再次校验已下载安装包的 SHA-256 后，以被动模式（/P /UPDATE /R）启动安装程序并退出 GeCL，安装完成后自动重新打开。需要 Windows 管理员授权；会结束当前界面和命令接口会话。",
+    "effect": "write"
+  },
   "plugin:gecl|dismiss_launch": {
     "title": "关闭一条已结束的启动提示",
     "description": "只隐藏对应启动进度记录，不会终止 Minecraft 进程。",

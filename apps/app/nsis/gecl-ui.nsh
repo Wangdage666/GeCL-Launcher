@@ -44,14 +44,22 @@ Function GeclLogo
   CreateFont $GeclHeadingFont "Microsoft YaHei UI" 20 700
   SendMessage $GeclTitle ${WM_SETFONT} $GeclHeadingFont 1
   SetCtlColors $GeclTitle "202832" "FFFFFF"
-  ${NSD_CreateLabel} 49u 29u 220u 14u "${VERSION}"
+  ${If} $GeclUpgrade = 1
+    ${NSD_CreateLabel} 49u 29u 220u 14u "$GeclInstalledVersion → ${VERSION}"
+  ${Else}
+    ${NSD_CreateLabel} 49u 29u 220u 14u "${VERSION}"
+  ${EndIf}
   Pop $0
   SetCtlColors $0 "596370" "FFFFFF"
 FunctionEnd
 
 Function GeclDirectoryPage
   Call SkipIfPassive
-  !insertmacro MUI_HEADER_TEXT "安装 gecl" "选择安装位置"
+  ${If} $GeclUpgrade = 1
+    !insertmacro MUI_HEADER_TEXT "更新 gecl" "保留现有设置与游戏数据"
+  ${Else}
+    !insertmacro MUI_HEADER_TEXT "安装 gecl" "选择安装位置"
+  ${EndIf}
   nsDialogs::Create 1018
   Pop $GeclPage
   SetCtlColors $GeclPage "202832" "FFFFFF"
@@ -68,7 +76,12 @@ Function GeclDirectoryPage
   Pop $GeclBrowse
   ${NSD_OnClick} $GeclBrowse GeclChooseDirectory
   GetDlgItem $0 $HWNDPARENT 1
-  SendMessage $0 ${WM_SETTEXT} 0 "STR:安装"
+  ${If} $GeclUpgrade = 1
+    EnableWindow $GeclBrowse 0
+    SendMessage $0 ${WM_SETTEXT} 0 "STR:更新"
+  ${Else}
+    SendMessage $0 ${WM_SETTEXT} 0 "STR:安装"
+  ${EndIf}
   Call GeclPageFont
   gecl_ui::Style "$GeclBrowse" "0"
   nsDialogs::Show
@@ -113,7 +126,11 @@ FunctionEnd
 
 Function GeclFinishPage
   Call SkipIfPassive
-  !insertmacro MUI_HEADER_TEXT "安装完成" "gecl 已安装到所选目录"
+  ${If} $GeclUpgrade = 1
+    !insertmacro MUI_HEADER_TEXT "更新完成" "gecl 已更新到 ${VERSION}"
+  ${Else}
+    !insertmacro MUI_HEADER_TEXT "安装完成" "gecl 已安装到所选目录"
+  ${EndIf}
   nsDialogs::Create 1018
   Pop $GeclPage
   SetCtlColors $GeclPage "202832" "FFFFFF"
@@ -128,7 +145,7 @@ Function GeclFinishPage
   SetCtlColors $GeclLaunch "202832" "FFFFFF"
   ${NSD_CreateCheckbox} 0 122u 100% 16u "创建桌面快捷方式"
   Pop $GeclShortcut
-  ${NSD_Check} $GeclShortcut
+  ${IfThen} $GeclUpgrade <> 1 ${|} ${NSD_Check} $GeclShortcut ${|}
   SetCtlColors $GeclShortcut "202832" "FFFFFF"
   GetDlgItem $0 $HWNDPARENT 1
   SendMessage $0 ${WM_SETTEXT} 0 "STR:完成"

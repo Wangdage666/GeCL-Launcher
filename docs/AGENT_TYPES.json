@@ -48,6 +48,13 @@
       "declaration": "#[serde(rename_all = \"camelCase\")]\npub struct ExternalSaveError {\n    message: String,\n    status_code: Option<u16>,\n}"
     }
   ],
+  "UpdateState": [
+    {
+      "source": "apps/app/src/api/gecl.rs",
+      "sourceLine": 303,
+      "declaration": "struct UpdateState {\n    latest: Option<app_update::UpdateInfo>,\n    downloaded: Option<(PathBuf, String)>,\n    cancelled: Option<Arc<AtomicBool>>,\n}"
+    }
+  ],
   "InstallCreateInstanceRequest": [
     {
       "source": "apps/app/src/api/install.rs",
@@ -1612,6 +1619,11 @@
       "source": "packages/app-lib/src/curseforge/mod.rs",
       "sourceLine": 39,
       "declaration": "#[serde(rename_all = \"camelCase\")]\npub struct Asset {\n    #[serde(default)]\n    pub title: String,\n    #[serde(default)]\n    pub description: String,\n    pub url: String,\n    #[serde(default)]\n    pub thumbnail_url: Option<String>,\n}"
+    },
+    {
+      "source": "packages/app-lib/src/state/gecl/app_update.rs",
+      "sourceLine": 51,
+      "declaration": "struct Asset {\n    name: String,\n    size: u64,\n    browser_download_url: String,\n    #[serde(default)]\n    digest: Option<String>,\n}"
     }
   ],
   "Links": [
@@ -2720,6 +2732,32 @@
       "declaration": "pub struct UserFriend {\n    pub id: String,\n    pub friend_id: String,\n    pub accepted: bool,\n    pub created: DateTime<Utc>,\n}"
     }
   ],
+  "UpdateInfo": [
+    {
+      "source": "packages/app-lib/src/state/gecl/app_update.rs",
+      "sourceLine": 19,
+      "declaration": "#[serde(rename_all = \"camelCase\")]\npub struct UpdateInfo {\n    pub version: String,\n    pub current: String,\n    pub notes: String,\n    pub page_url: String,\n    pub asset_name: String,\n    pub asset_url: String,\n    pub size: u64,\n    pub sha256: String,\n}"
+    }
+  ],
+  "Progress": [
+    {
+      "source": "packages/app-lib/src/state/gecl/app_update.rs",
+      "sourceLine": 31,
+      "declaration": "pub struct Progress {\n    pub done: u64,\n    pub total: u64,\n}"
+    },
+    {
+      "source": "packages/app-lib/src/state/gecl/world_backups.rs",
+      "sourceLine": 15,
+      "declaration": "pub struct Progress {\n    pub done: u64,\n    pub total: u64,\n}"
+    }
+  ],
+  "Release": [
+    {
+      "source": "packages/app-lib/src/state/gecl/app_update.rs",
+      "sourceLine": 37,
+      "declaration": "struct Release {\n    tag_name: String,\n    #[serde(default)]\n    body: Option<String>,\n    html_url: String,\n    #[serde(default)]\n    draft: bool,\n    #[serde(default)]\n    prerelease: bool,\n    #[serde(default)]\n    assets: Vec<Asset>,\n}"
+    }
+  ],
   "Preferences": [
     {
       "source": "packages/app-lib/src/state/gecl/appearance.rs",
@@ -2765,7 +2803,7 @@
   "SetupStatus": [
     {
       "source": "packages/app-lib/src/state/gecl/mod.rs",
-      "sourceLine": 19,
+      "sourceLine": 20,
       "declaration": "#[serde(rename_all = \"camelCase\")]\npub struct SetupStatus {\n    pub needs_directory: bool,\n    pub needs_account: bool,\n    pub data_directory: Option<String>,\n}"
     }
   ],
@@ -2774,13 +2812,6 @@
       "source": "packages/app-lib/src/state/gecl/pack_artwork.rs",
       "sourceLine": 10,
       "declaration": "pub struct PackArtwork {\n    pub name: String,\n    pub icon: Option<PathBuf>,\n}"
-    }
-  ],
-  "Progress": [
-    {
-      "source": "packages/app-lib/src/state/gecl/world_backups.rs",
-      "sourceLine": 15,
-      "declaration": "pub struct Progress {\n    pub done: u64,\n    pub total: u64,\n}"
     }
   ],
   "BackupResult": [

@@ -37,6 +37,8 @@ export function createMergedSearch<T>(identity: (item: T) => string) {
 			feeds: SearchFeed<T>[]
 			signal: AbortSignal
 			compare?: (a: T, b: T) => number
+			/** Lower ranks come first when no explicit order is requested; ties alternate between sources. */
+			rank?: (item: T) => number
 			include?: (item: T) => boolean
 		}) {
 			let snapshot = cache.get(options.key)
@@ -74,14 +76,17 @@ export function createMergedSearch<T>(identity: (item: T) => string) {
 							stream.offset += consumed
 							stream.total = chunk.total
 							stream.ended = consumed === 0 || stream.offset >= chunk.total
-							stream.buffer.push(
-								...chunk.items.filter((item) => {
-									const id = identity(item)
-									if (stream.seen.has(id)) return false
-									stream.seen.add(id)
-									return true
-								}),
-							)
+							const fresh = chunk.items.filter((item) => {
+								const id = identity(item)
+								if (stream.seen.has(id)) return false
+								stream.seen.add(id)
+								return true
+							})
+							if (options.rank && !options.compare) {
+								const ranks = new Map(fresh.map((item) => [item, options.rank!(item)]))
+								fresh.sort((a, b) => ranks.get(a)! - ranks.get(b)!)
+							}
+							stream.buffer.push(...fresh)
 						} catch (error) {
 							check()
 							stream.error = `${options.feeds[index].name}：${(error as { message?: string })?.message ?? String(error)}`
@@ -107,8 +112,14 @@ export function createMergedSearch<T>(identity: (item: T) => string) {
 							index,
 						)
 					} else {
+						const best = options.rank
+							? Math.min(...available.map(({ s }) => options.rank!(s.buffer[0])))
+							: 0
+						const tied = options.rank
+							? available.filter(({ s }) => options.rank!(s.buffer[0]) === best)
+							: available
 						const preferred = state.steps % state.streams.length
-						index = available.find(({ i }) => i >= preferred)?.i ?? available[0].i
+						index = tied.find(({ i }) => i >= preferred)?.i ?? tied[0].i
 					}
 					const item = state.streams[index].buffer.shift()!
 					state.steps++

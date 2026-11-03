@@ -424,6 +424,11 @@ export function useBrowseSearch(options: UseBrowseSearchOptions): BrowseSearchSt
 		() => options.projectType.value,
 		(newType, oldType) => {
 			debug('projectType changed', { from: oldType, to: newType })
+			searchVersion++
+			projectHits.value = []
+			serverHits.value = []
+			totalHits.value = 0
+			loading.value = true
 			effectiveCurrentSortType.value =
 				effectiveSortTypes.value.find((sortType) => sortType.name === 'relevance') ??
 				effectiveSortTypes.value[0]

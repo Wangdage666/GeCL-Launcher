@@ -41,6 +41,7 @@ import { useRoute, useRouter } from 'vue-router'
 
 import { useAppServerBrowse } from '@/composables/browse/use-app-server-browse'
 import { createMergedSearch } from '@/features/browse/merged-search'
+import { nameMatchTier } from '@/features/browse/relevance'
 import {
 	isCurseForge,
 	projects as curseforgeProjects,
@@ -1157,7 +1158,11 @@ async function search(requestParams: string) {
 	const query = params.get('query') ?? ''
 	const preferences = getCurrentSelectedInstallPreferences('mod')
 	const entries = /\p{Script=Han}/u.test(query)
-		? await findChineseMods(query, controller.signal).catch(() => [])
+		? await findChineseMods(query, controller.signal).catch(() => {
+				if (!controller.signal.aborted)
+					chineseSearchNote.value = '中文名称查询暂时不可用，可稍后重试或使用英文名。'
+				return []
+			})
 		: []
 	const feeds = []
 	if (browseSource.value !== 'curseforge')
@@ -1202,6 +1207,24 @@ async function search(requestParams: string) {
 						Date.parse(sort === 'newest' ? b.date_created : b.date_modified) -
 						Date.parse(sort === 'newest' ? a.date_created : a.date_modified)
 				: undefined
+	const entryOrder = (hit: Labrinth.Search.v3.ResultSearchProject) => {
+		const fromCurseForge = curseforgeProjects.has(hit.project_id)
+		const index = entries.findIndex((entry) =>
+			fromCurseForge
+				? entry.curseforgeSlugs?.includes(hit.slug ?? '')
+				: entry.identifiers.includes(hit.project_id) || entry.identifiers.includes(hit.slug ?? ''),
+		)
+		return index < 0 ? entries.length : index
+	}
+	const rank = (hit: Labrinth.Search.v3.ResultSearchProject) => {
+		const cfProject = curseforgeProjects.get(hit.project_id)
+		const original = cfProject?.name ?? originalModTitles.get(hit.project_id) ?? hit.name
+		const entry = cachedMcmodEntry(cfProject ? mcmodProject(cfProject) : { ...hit, title: original })
+		return (
+			nameMatchTier(query, [original, entry?.name, entry?.originalName, hit.slug]) * 1000 +
+			entryOrder(hit)
+		)
+	}
 	const result = await mergedSearch.page({
 		key: `${browseSource.value}:${params}:${JSON.stringify(preferences)}:${instanceHideInstalled.value ? [...installedCurseForgeIds.value].sort().join(',') : ''}`,
 		offset,
@@ -1209,6 +1232,7 @@ async function search(requestParams: string) {
 		feeds,
 		signal: controller.signal,
 		compare,
+		rank: sort === 'relevance' && query.trim() ? rank : undefined,
 		include: (hit) =>
 			!instanceHideInstalled.value || !installedCurseForgeIds.value.has(hit.project_id),
 	})
@@ -1231,7 +1255,7 @@ async function searchModrinth(
 	if (projectType.value === 'mod' && /\p{Script=Han}/u.test(query)) {
 		try {
 			chineseEntries = knownEntries ?? (await findChineseMods(query, controller.signal))
-			if (!chineseEntries.length)
+			if (!chineseEntries.length && !chineseSearchNote.value)
 				chineseSearchNote.value = '暂未找到这个中文名对应的 Modrinth 项目，可尝试英文名。'
 			requestParams = withChineseMatches(requestParams, chineseEntries)
 		} catch (error) {
@@ -1424,8 +1448,23 @@ watch(
 		onCleanup(() => controller.abort())
 		const entries = hits.map((hit) => ({
 			...hit,
-			title: originalModTitles.get(hit.project_id) ?? hit.name,
+			title:
+				originalModTitles.get(hit.project_id) ??
+				curseforgeProjects.get(hit.project_id)?.name ??
+				hit.name,
 		}))
+		const names = new Map<string, string>()
+		let flushTimer: ReturnType<typeof setTimeout> | undefined
+		const flush = () => {
+			flushTimer = undefined
+			if (controller.signal.aborted || !names.size) return
+			// A shallow ref update makes the verified Chinese titles reactive in the shared cards.
+			searchState.projectHits.value = searchState.projectHits.value.map((item) =>
+				names.has(item.project_id) ? { ...item, name: names.get(item.project_id)! } : item,
+			)
+			names.clear()
+		}
+		onCleanup(() => clearTimeout(flushTimer))
 		let next = 0
 		async function worker() {
 			while (next < entries.length && !controller.signal.aborted) {
@@ -1434,18 +1473,19 @@ watch(
 				const target = cfProject ? mcmodProject(cfProject) : project
 				const entry = cachedMcmodEntry(target) ?? (await resolveMcmod(target, controller.signal))
 				if (!entry || controller.signal.aborted) continue
-				const current = searchState.projectHits.value
 				const display = displayModName(project.title, entry)
-				const hit = current.find((item) => item.project_id === project.project_id)
-				if (!hit || hit.name === display) continue
-				// A shallow ref update makes the verified Chinese title reactive in the shared cards.
-				searchState.projectHits.value = current.map((item) =>
-					item.project_id === project.project_id ? { ...item, name: display } : item,
+				const hit = searchState.projectHits.value.find(
+					(item) => item.project_id === project.project_id,
 				)
+				if (!hit || hit.name === display) continue
+				names.set(project.project_id, display)
+				flushTimer ??= setTimeout(flush, 300)
 			}
 		}
-		void worker()
-		void worker()
+		void Promise.all([worker(), worker()]).then(() => {
+			clearTimeout(flushTimer)
+			flush()
+		})
 	},
 )
 
