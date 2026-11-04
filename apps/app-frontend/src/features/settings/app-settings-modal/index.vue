@@ -4,6 +4,7 @@ import {
 	CoffeeIcon,
 	GaugeIcon,
 	PaintbrushIcon,
+	RefreshCwIcon,
 	Settings2Icon,
 	WindowIcon,
 	WrenchIcon,
@@ -34,6 +35,7 @@ import type { InstanceDefaultsTab } from '@/features/settings/settings-actions'
 import DownloadSourceSettings from '@/features/settings/system/download-source-settings.vue'
 import ResourceManagementSettings from '@/features/settings/system/resource-management-settings/index.vue'
 import TroubleshootingSettings from '@/features/settings/system/troubleshooting-settings.vue'
+import UpdateSettings from '@/features/settings/system/update-settings.vue'
 import { appSettingsKeys, appSettingsQueryOptions, set } from '@/helpers/settings.ts'
 import { injectAppUpdateDownloadProgress } from '@/providers/download-progress.ts'
 
@@ -141,6 +143,12 @@ const tabs = [
 		category: tabCategories.system,
 		icon: WrenchIcon,
 		content: TroubleshootingSettings,
+	},
+	{
+		name: defineMessage({ id: 'gecl.settings.updates', defaultMessage: '检查更新' }),
+		category: tabCategories.system,
+		icon: RefreshCwIcon,
+		content: UpdateSettings,
 	},
 ]
 
